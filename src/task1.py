@@ -1,3 +1,9 @@
+###
+## Task 1: 
+# encode source sentences as transducers. The file loops over all
+# Sentences (of the first 100) and saves OpenFST files describing the
+# transducer corresponding to the sentence.
+#
 
 outdir = "../data/fsts/"
 lines = open('../data/dev.en').read().split("\n")
@@ -19,3 +25,6 @@ for line_num, sentence in enumerate(lines[:N]):
     
     fstfile.close()
     osymfile.close()
+
+
+# fstcompile --osymbols=osyms-0.txt fst-0.fst binary-0.fst
