@@ -3,7 +3,7 @@
 ###
 # Draws the FST by its id and directory. For example:
 # ./draw-fst 4 ../data/fsts
-# writes a file fst-4.ps to the ../data/fsts directory.
+# writes a postscript file fst-4.ps to the ../data/fsts directory.
 # Directory is optional and default is the current one.
 
 # Get & set arguments
@@ -18,14 +18,17 @@ fi
 # Files
 osyms="${root}/osyms-$i.txt"
 fst="${root}/fst-$i.fst"
-fst_binary="${root}/fst-$i-binary.fst"
+fst_binary="${root}/fst-$i.bin"
 fst_dot="${root}/fst-$i.dot"
 fst_ps="${root}/fst-$i.ps"
+fst_pdf="${root}/fst-$i.pdf"
 
 # Go!
 fstcompile --osymbols="$osyms" "$fst" "$fst_binary" #>/dev/null
 fstdraw --osymbols="$osyms" "$fst_binary" "$fst_dot" >/dev/null
 dot -Tps "$fst_dot" >"$fst_ps"
+# For PDF (doesn't work for Bas)
+# dot -Tpdf "$fst_dot" > "${root}/fst-$i.pdf"
 echo "Finished drawing FST: $fst_ps"
 
 # Clean up
