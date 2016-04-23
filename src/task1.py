@@ -5,13 +5,13 @@
 # transducer corresponding to the sentence.
 #
 
-outdir = "../data/fsts/"
+outdir = "../data/inputs/"
 lines = open('../data/dev.en').read().split("\n")
 
 N = 100
 for line_num, sentence in enumerate(lines[:N]):
-    fstfile = open(outdir + "fst-%s.fst" % line_num, "w")
-    osymfile = open(outdir + "osyms-%s.txt" % line_num, "w")
+    fstfile = open(outdir + "input-%s.fst" % line_num, "w")
+    osymfile = open(outdir + "input-%s.osyms" % line_num, "w")
     osymfile.write("<eps> 0\n")
 
     words = sentence.split(" ")
