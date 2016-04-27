@@ -11,6 +11,7 @@
 import numpy as np
 
 def task2():
+    debug = True # false
     english_text_file = "../data/dev.en"
     grammar_file = "../data/rules.monotone.dev/grammar." # Without extension
     weight_file = "../data/weights.monotone"
@@ -35,9 +36,8 @@ def task2():
         ||| dog ||| chien
         ||| black ||| noir
         ||| black ||| noirs
-        ||| black dog ||| chien noir
-        ||| black dog barks ||| chien noir aboie
-    """[1:-1]
+        ||| black dog ||| chien noir"""#[1:-1]
+        #||| black dog barks ||| chien noir aboie"""[1:-1]
 
     # Line 35 is the shortest one, line 2 the longest 
     for line_num in [35]: # or: range(len(lines)):
@@ -57,7 +57,8 @@ def task2():
            
 
         # For testing:
-        # grammar = test_grammar.split("\n")
+        if debug == True:
+            grammar = test_grammar.split("\n")
 
         #TODO: we still need to word penalty feature, but need to think of a more efficient way to do this
         #TODO: pass through feature
@@ -73,16 +74,19 @@ def task2():
             osymbols += japanese
 
             # getting all the features from the file (TODO: for loop.. one regex??)
-            feature_list = []
-            features = parts[3]
-            features = features.split(" ")
+            if debug == True:
+                weight = 0.5
+            else:
+                feature_list = []
+                features = parts[3]
+                features = features.split(" ")
 
-            for f in features:
-                feature_list.append(float(f.split("=")[1]))
-            feature_list.append(glue)
-            feature_vector = np.asarray(feature_list)
+                for f in features:
+                    feature_list.append(float(f.split("=")[1]))
+                feature_list.append(glue)
+                feature_vector = np.asarray(feature_list)
 
-            weight = np.dot(weight_vector.T, feature_vector)
+                weight = np.dot(weight_vector.T, feature_vector)
 
             if len(english) == 1 and len(japanese) == 1:
 
