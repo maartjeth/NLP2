@@ -9,9 +9,10 @@
 #
 
 import numpy as np
+import math
 
 def task2():
-    debug = True # false
+    debug = False
     english_text_file = "../data/dev.en"
     grammar_file = "../data/rules.monotone.dev/grammar." # Without extension
     weight_file = "../data/weights.monotone"
@@ -27,8 +28,7 @@ def task2():
         for w in w_lines:
             weights.append(float(w.split(" ")[1]))
 
-    weight_vector = np.asarray(weights[0:-2]) # TODO: for now I deleted the last two features
-
+    weight_vector = np.asarray(weights)
     # A simple grammar for testing purposes
     test_grammar = """
         ||| the ||| le
@@ -41,37 +41,31 @@ def task2():
 
     # Line 35 is the shortest one, line 2 the longest 
     for line_num in [35]: # or: range(len(lines)):
+        
         with open(grammar_file + str(line_num)) as f:
             grammar = f.read().split("\n") # set dummy features to 0
             grammar.append('[X] ||| OOV ||| OOV ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0 oov=1')
-
-            glue = float(len(grammar)) # TODO: do i interpret glue correctly from the assignment?
-        
-        # Now I hope this occurs only really really sporadically
-        preprocessed_line, included_OOV = preprocess(lines[line_num], grammar)
-        if included_OOV == True:
-            with open(english_text_file, "w") as f:
-                sentences = f.readlines()
-                sentences[line_num] = preprocessed_line
-                f.write(sentences)
-           
-
+                
         # For testing:
         if debug == True:
             grammar = test_grammar.split("\n")
 
-        #TODO: we still need to word penalty feature, but need to think of a more efficient way to do this
-        #TODO: pass through feature
-
         node = 0 # The last node number
         fst, isymbols, osymbols = "", [], []
         for rule in grammar:
+            pass_through_count = 0
             if rule == "": continue
             parts = rule.split(" ||| ")
             english = parts[1].split(" ")
-            japanese = parts[2].split(" ")  
+            japanese = parts[2].split(" ")              
             isymbols += english
             osymbols += japanese
+
+            # new features
+            OOV_count = english.count('OOV')    
+            glue = 1
+            word_penalty = len(english) * (-1/math.log(10))
+   
 
             # getting all the features from the file (TODO: for loop.. one regex??)
             if debug == True:
@@ -84,6 +78,8 @@ def task2():
                 for f in features:
                     feature_list.append(float(f.split("=")[1]))
                 feature_list.append(glue)
+                feature_list.append(OOV_count)
+                feature_list.append(word_penalty)
                 feature_vector = np.asarray(feature_list)
 
                 weight = np.dot(weight_vector.T, feature_vector)
@@ -127,31 +123,7 @@ def task2():
         with open("%sphrase-table-%s.isyms" % (out_dir, line_num), "w") as f: 
             f.write(isyms)
         with open("%sphrase-table-%s.osyms" % (out_dir, line_num), "w") as f: 
-            f.write(osyms)
-
-def preprocess(line, grammar):
-    en_words = set()
-    included_OOV = False
-
-    for rule in grammar:
-        if rule == "": continue
-        parts = rule.split(" ||| ")
-        english = parts[1].split(" ")
-        for word in english:
-            en_words.add(word)
-
-    line_list = line.split(" ")
-    for i, word in enumerate(line_list):
-        if word not in en_words:
-            line_list[i] = 'OOV'
-            included_OOV = True
-
-    if included_OOV == True:
-        new_line = ''.join(line_list)
-    else:
-        new_line = line
-
-    return new_line, included_OOV
+  
 
 if __name__ == '__main__':
     task2()
