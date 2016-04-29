@@ -44,6 +44,6 @@ def generate_input_fsts(sentences, outdir="../data/inputs/"):
 if __name__ == "__main__":
     
     # Get our (preprocessed) English sentences
-    # sentences = load_sentences();
-    # generate_input_fsts(sentences, "../data/inputs/")
-    generate_input_fsts(['the black dog'], "../dummydata/")
+    sentences = load_sentences();
+    generate_input_fsts(sentences, "../data/inputs/")
+    # generate_input_fsts(['the black dog'], "../dummydata/")
