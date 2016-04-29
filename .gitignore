@@ -2,3 +2,4 @@
 /dummies
 /notebooks
 .ipynb*
+*.pyc
