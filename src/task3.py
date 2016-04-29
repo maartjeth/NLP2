@@ -4,7 +4,7 @@ def task3(src_fst, trnsl_fst, out_dir, line_num):
 
 	outfile = "../data/derivations-fsts/combined-test.fst"
 	# composition of the two fsts
-	call = "fstcompose [--opts] " + src_fst + " " + trnsl_fst + " " + outfile
+	call = "fstcompose " + src_fst + " " + trnsl_fst + " " + outfile
 	print "CALL: ", call
 	subprocess.call([call], shell=True)
 	
