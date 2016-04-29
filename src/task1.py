@@ -7,16 +7,17 @@
 
 from helpers import *
 
-def generate_input_fsts(sentences, outdir="../data/inputs/"):
+def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
     """
     Turns a list of sentences into intput transducers. These are
-    all stored as .fst, .osyms and .isyms files.
+    all stored as .txtfst, .osyms, .isyms, .fst files.
     """
+    if sentences == None: sentences = self.load_sentences()
 
     for line_num, sentence in enumerate(sentences):
 
         # FST object
-        fst = FST("%sinput-%s.fst" % (outdir,line_num))
+        fst = FST("%s-%s" % (out_base, line_num))
 
         # Create the FST
         words = sentence.split(" ")
@@ -27,7 +28,7 @@ def generate_input_fsts(sentences, outdir="../data/inputs/"):
             voc.add(word)
             fst_txt += "%s %s %s %s 0\n" % (i, i+1, i, word)
             isymbols_txt += "%s %s\n" % (i, i)
-        fst_txt += str(i)
+        fst_txt += str(i+1)
 
         # Create the out-symbols
         osymbols_txt = "<eps> 0\n"
@@ -38,12 +39,12 @@ def generate_input_fsts(sentences, outdir="../data/inputs/"):
         fst.update_fst(fst_txt)
         fst.update_osymbols(osymbols_txt)
         fst.update_isymbols(isymbols_txt)
-        fst.compile()
+        fst.compile().draw()
 
+# Turn this into a class method
+Helper.generate_input_fsts = generate_input_fsts
 
-if __name__ == "__main__":
-    
-    # Get our (preprocessed) English sentences
-    sentences = load_sentences();
-    generate_input_fsts(sentences, "../data/inputs/")
-    # generate_input_fsts(['the black dog'], "../dummydata/")
+if __name__ == "__main__" or True:
+    H = Helper()
+    # H.generate_input_fsts()
+    H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/theblackdog")

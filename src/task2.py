@@ -7,142 +7,127 @@
 # * Weigh all arcs using the linear model. Now they all have weight .5 or 1
 # *
 #
-
-import numpy as np
 import math
 import subprocess
+from helpers import *
 
-def task2():
-    debug = False
-    english_text_file = "../data/dev.en"
-    grammar_file = "../data/rules.monotone.dev/grammar." # Without extension
-    weight_file = "../data/weights.monotone"
-    out_dir = "../data/phrase-tables/"
-    out_dir_fst = "../data/fsts/"
-    out_dir_sort = "../data/sorted-fsts/"
 
-    # Read in all lines
-    with open(english_text_file, "r") as f: 
-        lines = f.read().split("\n")
+def get_feature_weights(self):
+    """
+    Gets a dictionary with feature weights
+    """
+    try: 
+        return self.feature_weights
+    except AttributeError:
+        weight_file = "../data/weights.monotone"
+        with open(weight_file, "r") as f:
+            w_lines = f.read().split("\n")
+            feature_weights = []
+            for line in w_lines:
+                key, val = line.split(" ")
+                feature_weights.append((key, float(val)))
+        self.feature_weights = dict(feature_weights)
+    return self.feature_weights
 
-    weights = []
-    with open(weight_file, "r") as f:
-        w_lines = f.read().split("\n")
-        for w in w_lines:
-            weights.append(float(w.split(" ")[1]))
+# Add as method to Helper class
+Helper.get_feature_weights = get_feature_weights
 
-    weight_vector = np.asarray(weights)
-    # A simple grammar for testing purposes
-    test_grammar = """
-        ||| the ||| le
-        ||| the ||| un
-        ||| dog ||| chien
-        ||| black ||| noir
-        ||| black ||| noirs
-        ||| black dog ||| chien noir"""#[1:-1]
-        #||| black dog barks ||| chien noir aboie"""[1:-1]
 
-    # Line 35 is the shortest one, line 2 the longest 
-    for line_num in [35]: # or: range(len(lines)):
-        #line_num += 1 # DEBUG
-        with open(grammar_file + str(line_num)) as f:
-            grammar = f.read().split("\n") # set dummy features to 0
-            grammar.append('[X] ||| OOV ||| OOV ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0 oov=1')
-                
-        # For testing:
-        if debug == True:
-            grammar = test_grammar.split("\n")
+def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, out_base=None, debug=False):
+    """
+    Generates all phrase table FSTS 
 
-        node = 0 # The last node number
-        fst, isymbols, osymbols = "", [], []
+    Args:
+        sentence_ids: a list of ids (numbers) of the sentences (to find the right grammars)
+        grammar_base_fn: the base of the grammr files; defaults to Helper value.
+        out_base: base of the resulting fsts; defaults to Helper value for phrase tables.
+        debug: if True, it uses the `../dummydata/theblackdog` FST.
+    """
+    if out_base == None: out_base = self.phrase_table_fst_base
+    if sentence_ids == None: sentence_ids = range(self.num_sentences)
+
+    if debug:
+        out_base = "../dummydata/theblackdog"
+        sentence_ids = [0]
+        grammar_base_fn="../dummydata/theblackdog"
+
+    for line_num in sentence_ids:
+        #print "Starting sentence %s (%s rules in grammar)" % (line_num, len(grammar))
+        fst = FST(out_base + "-" + str(line_num))
+        grammar = self.get_grammar(line_num, grammar_base_fn=grammar_base_fn)
+        
+        node, fst_txt, isymbols, osymbols = 0, "", [], []
         for rule in grammar:
-            pass_through_count = 0
-            if rule == "": continue
+
             parts = rule.split(" ||| ")
             english = parts[1].split(" ")
             japanese = parts[2].split(" ")              
             isymbols += english
             osymbols += japanese
 
-            # new features
-            OOV_count = english.count('OOV')    
-            glue = 1
-            word_penalty = len(english) * (-1/math.log(10))
-   
+            # Calculate additional features
+            OOV_count = english.count('OOV')
+            glue = 1 
+            word_penalty = float(len(english)) * (-1.0 / math.log(10))
 
-            # getting all the features from the file (TODO: for loop.. one regex??)
-            if debug == True:
-                weight = 0.5
-            else:
-                feature_list = []
-                features = parts[3]
-                features = features.split(" ")
-
-                for f in features:
-                    feature_list.append(float(f.split("=")[1]))
-                feature_list.append(glue)
-                feature_list.append(OOV_count)
-                feature_list.append(word_penalty)
-                feature_vector = np.asarray(feature_list)
-
-                weight = np.dot(weight_vector.T, feature_vector)
-
+            # Determine the weight (this is the log-linear model)
+            weight = 0
+            feature_weights = self.get_feature_weights()
+            for feature_value in parts[3].split(" "):
+                feature, value = feature_value.split("=")
+                weight += feature_weights[feature] * float(value)
+            weight += feature_weights['Glue'] * glue
+            weight += feature_weights['WordPenalty'] * word_penalty
+            weight += feature_weights['PassThrough'] * OOV_count
+                
+            # Build the FST 
             if len(english) == 1 and len(japanese) == 1:
 
                 # Arc 0 --> 0 labeled english[i]:japanese[0] with weight of the rule
-                fst += "0 0 %s %s %s\n" % (english[0], japanese[0], weight)
+                fst_txt += "0 0 %s %s %s\n" % (english[0], japanese[0], weight)
 
             else:
                 # Arc 0 --> [new node] labeled english[0]:<eps> with weight 1
                 node += 1
-                fst += "0 %s %s <eps> 1\n" % (node, english[0])
+                fst_txt += "0 %s %s <eps> 1\n" % (node, english[0])
 
                 for en in english[1:]:
                     # Arc [node] --> [new node] labeled english[i]:<eps> with weight 1
                     node += 1
-                    fst += "%s %s %s <eps> 1\n" % (node-1, node, en)
+                    fst_txt += "%s %s %s <eps> 1\n" % (node-1, node, en)
 
                 for ja in japanese[:-1]:
                     node += 1
                     # Arc [node] --> [new node] labeled <eps>:japanese[i] with weight 1
-                    fst += "%s %s <eps> %s 1\n" % (node-1, node, ja)
+                    fst_txt += "%s %s <eps> %s 1\n" % (node-1, node, ja)
 
                 # Arc [node] --> 0 labeled <eps>:japanese[-1] with the weight of the rule
-                fst += "%s 0 <eps> %s %s\n" % (node, japanese[-1], weight)
-
+                fst_txt += "%s 0 <eps> %s %s\n" % (node, japanese[-1], weight)
+        
+        # Add final node
+        fst_txt += "0"
 
         # The in and out symbol dictionaries
-        isyms = "<eps> 0\n"
+        isymbols_txt = "<eps> 0\n"
         for i, en in enumerate(set(isymbols)):
-            isyms += "%s %s\n" % (en, i+1)
+            isymbols_txt += "%s %s\n" % (en, i+1)
         
-        osyms = "<eps> 0\n"
+        osymbols_txt = "<eps> 0\n"
         for i, ja in enumerate(set(osymbols)):
-            osyms += "%s %s\n" % (ja, i+1)
+            osymbols_txt += "%s %s\n" % (ja, i+1)
         
-        # Write everything to a file
-        fst_f = "%sphrase-table-%s.fst" % (out_dir, line_num)
-        isymbols_f = "%sphrase-table-%s.isyms" % (out_dir, line_num)
-        osymbols_f = "%sphrase-table-%s.osyms" % (out_dir, line_num)
-        output_f = "%sfst-%s.fst" % (out_dir_fst, line_num)
+        # Update & compile the FST
+        fst.update_fst(fst_txt)
+        fst.update_isymbols(isymbols_txt)
+        fst.update_osymbols(osymbols_txt)
+        fst.compile().sort()
 
-        with open(fst_f, "w") as f: 
-            f.write(fst)
-        with open(isymbols_f, "w") as f: 
-            f.write(isyms)
-        with open(osymbols_f, "w") as f: 
-            f.write(osyms)
-
-        # make real fsts
-        call = "fstcompile --isymbols=" + isymbols_f + " --osymbols=" + osymbols_f + " " + fst_f + " " + output_f
-        subprocess.call([call], shell=True)
-
-        # sort the fst (that's needed for the composition later on)
-        output_fst = "%sfst-%s.fst" % (out_dir_fst, line_num)
-        sort_f = "%sfst-sort-%s.fst" % (out_dir_sort, line_num)
-        call_sort = "fstarcsort " + output_fst + " " + sort_f
-        subprocess.call([call_sort], shell=True)
+        # Drawing large FST's can take a very long time!
+        if debug: fst.draw()
   
+# Add as method to Helper class
+Helper.generate_phrase_table_fsts = generate_phrase_table_fsts
 
 if __name__ == '__main__':
-    task2()
+    H = Helper()
+    H.generate_phrase_table_fsts()
