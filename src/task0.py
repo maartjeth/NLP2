@@ -1,3 +1,7 @@
+###
+# In task 0, we preprocess all sentences and replace all words
+# that are not in the grammar by OOV. Also, we keep only 100 words.
+
 def preprocess_oov(sentences, grammar_file, N=100):
     """Replace all words not in the grammar by OOV and write to new file
 
@@ -34,4 +38,5 @@ def preprocess_oov(sentences, grammar_file, N=100):
        
 
 if __name__ == '__main__':
+    # Preprocess our sentences
     preprocess_oov('../data/dev.en', '../data/rules.monotone.dev/grammar.')

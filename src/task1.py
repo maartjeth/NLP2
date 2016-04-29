@@ -5,26 +5,43 @@
 # transducer corresponding to the sentence.
 #
 
-outdir = "../data/inputs/"
-lines = open('../data/dev.en').read().split("\n")
+from helpers import *
 
-N = 100
-for line_num, sentence in enumerate(lines[:N]):
-    fstfile = open(outdir + "input-%s.fst" % line_num, "w")
-    osymfile = open(outdir + "input-%s.osyms" % line_num, "w")
-    osymfile.write("<eps> 0\n")
+def generate_input_fsts(sentences, outdir="../data/inputs/"):
+    """
+    Turns a list of sentences into intput transducers. These are
+    all stored as .fst, .osyms and .isyms files.
+    """
 
-    words = sentence.split(" ")
-    voc = set()
-    for i, word in enumerate(words):
-        voc.add(word)
-        fstfile.write("%s %s %s %s 0\n" %(i, i+1, i, word))
+    for line_num, sentence in enumerate(sentences):
+
+        # FST object
+        fst = FST("%sinput-%s.fst" % (outdir,line_num))
+
+        # Create the FST
+        words = sentence.split(" ")
+        voc = set()
+        fst_txt = ""
+        isymbols_txt = ""
+        for i, word in enumerate(words):
+            voc.add(word)
+            fst_txt += "%s %s %s %s 0\n" % (i, i+1, i, word)
+            isymbols_txt += "%s %s\n" % (i, i)
+
+        # Create the out-symbols
+        osymbols_txt = "<eps> 0\n"
+        for i, word in enumerate(voc):
+            osymbols_txt += "%s %s\n" % (word, i+1)
         
-    for i, word in enumerate(voc):
-        osymfile.write(word + " " + str(i+1) + "\n")
+        # Update fst and compile
+        fst.update_fst(fst_txt)
+        fst.update_osymbols(osymbols_txt)
+        fst.update_isymbols(isymbols_txt)
+        fst.compile()
+
+
+if __name__ == "__main__":
     
-    fstfile.close()
-    osymfile.close()
-
-
-# fstcompile --osymbols=osyms-0.txt fst-0.fst binary-0.fst
+    # Get our (preprocessed) English sentences
+    sentences = load_sentences();
+    generate_input_fsts(sentences, "../data/inputs/")
