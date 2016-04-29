@@ -18,7 +18,7 @@ for line_num, sentence in enumerate(lines[:N]):
     voc = set()
     for i, word in enumerate(words):
         voc.add(word)
-        fstfile.write("%s %s %s %s 1\n" %(i, i+1, i, word))
+        fstfile.write("%s %s %s %s 0\n" %(i, i+1, i, word))
         
     for i, word in enumerate(voc):
         osymfile.write(word + " " + str(i+1) + "\n")
