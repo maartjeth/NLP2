@@ -11,8 +11,8 @@ def task3(src_fst, trnsl_fst, out_dir, line_num):
 
 
 if __name__ == '__main__':
-	src_fst = "../data/fsts/fst-35.fst"
-	trnsl_fst = "../data/fsts/fst-35.fst"
+	src_fst = "../data/sorted-fsts/fst-sort-35.fst"
+	trnsl_fst = "../data/sorted-fsts/fst-sort-36.fst"
 	out_dir = "../data/composition-fsts"
 
 	for line_num in range(1):

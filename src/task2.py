@@ -19,7 +19,7 @@ def task2():
     weight_file = "../data/weights.monotone"
     out_dir = "../data/phrase-tables/"
     out_dir_fst = "../data/fsts/"
-    out_dir_sort = "../data/sorted_fsts/"
+    out_dir_sort = "../data/sorted-fsts/"
 
     # Read in all lines
     with open(english_text_file, "r") as f: 
@@ -44,6 +44,7 @@ def task2():
 
     # Line 35 is the shortest one, line 2 the longest 
     for line_num in [35]: # or: range(len(lines)):
+        #line_num += 1 # DEBUG
         with open(grammar_file + str(line_num)) as f:
             grammar = f.read().split("\n") # set dummy features to 0
             grammar.append('[X] ||| OOV ||| OOV ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0 oov=1')
@@ -138,7 +139,7 @@ def task2():
 
         # sort the fst (that's needed for the composition later on)
         output_fst = "%sfst-%s.fst" % (out_dir_fst, line_num)
-        sort_f = "%sfst_sort-%s.fst" % (out_dir_sort, line_num)
+        sort_f = "%sfst-sort-%s.fst" % (out_dir_sort, line_num)
         call_sort = "fstarcsort " + output_fst + " " + sort_f
         subprocess.call([call_sort], shell=True)
   
