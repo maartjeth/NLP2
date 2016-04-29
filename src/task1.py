@@ -10,14 +10,14 @@ from helpers import *
 def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
     """
     Turns a list of sentences into intput transducers. These are
-    all stored as .fst, .osyms and .isyms files.
+    all stored as .txtfst, .osyms, .isyms, .fst files.
     """
     if sentences == None: sentences = self.load_sentences()
 
     for line_num, sentence in enumerate(sentences):
 
         # FST object
-        fst = FST("%s-%s.fst" % (out_base, line_num))
+        fst = FST("%s-%s" % (out_base, line_num))
 
         # Create the FST
         words = sentence.split(" ")
@@ -39,12 +39,12 @@ def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
         fst.update_fst(fst_txt)
         fst.update_osymbols(osymbols_txt)
         fst.update_isymbols(isymbols_txt)
-        fst.compile()
+        fst.compile().draw()
 
 # Turn this into a class method
 Helper.generate_input_fsts = generate_input_fsts
 
 if __name__ == "__main__" or True:
     H = Helper()
-    H.generate_input_fsts()
-    # H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/theblackdog")
+    # H.generate_input_fsts()
+    H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/theblackdog")
