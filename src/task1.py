@@ -5,7 +5,8 @@
 # transducer corresponding to the sentence.
 #
 
-from helpers import *
+from Helper import *
+from FST import *
 
 def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
     """

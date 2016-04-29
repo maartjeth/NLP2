@@ -8,8 +8,8 @@
 # *
 #
 import math
-import subprocess
-from helpers import *
+from Helper import *
+from FST import *
 
 
 def get_feature_weights(self):

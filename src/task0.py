@@ -1,7 +1,8 @@
 ###
 # In task 0, we preprocess all sentences and replace all words
 # that are not in the grammar by OOV. Also, we keep only 100 words.
-from helpers import *
+from Helper import *
+from FST import *
 
 def preprocess_oov(self, raw_sentences_fn, 
     grammar_base_fn=None, num_sentences=None, sentences_fn=None):
