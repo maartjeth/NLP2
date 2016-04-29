@@ -27,6 +27,7 @@ def generate_input_fsts(sentences, outdir="../data/inputs/"):
             voc.add(word)
             fst_txt += "%s %s %s %s 0\n" % (i, i+1, i, word)
             isymbols_txt += "%s %s\n" % (i, i)
+        fst_txt += str(i)
 
         # Create the out-symbols
         osymbols_txt = "<eps> 0\n"
@@ -43,5 +44,6 @@ def generate_input_fsts(sentences, outdir="../data/inputs/"):
 if __name__ == "__main__":
     
     # Get our (preprocessed) English sentences
-    sentences = load_sentences();
-    generate_input_fsts(sentences, "../data/inputs/")
+    # sentences = load_sentences();
+    # generate_input_fsts(sentences, "../data/inputs/")
+    generate_input_fsts(['the black dog'], "../dummydata/")
