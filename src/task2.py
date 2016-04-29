@@ -10,6 +10,7 @@
 
 import numpy as np
 import math
+import subprocess
 
 def task2():
     debug = False
@@ -17,6 +18,8 @@ def task2():
     grammar_file = "../data/rules.monotone.dev/grammar." # Without extension
     weight_file = "../data/weights.monotone"
     out_dir = "../data/phrase-tables/"
+    out_dir_fst = "../data/fsts/"
+    out_dir_sort = "../data/sorted_fsts/"
 
     # Read in all lines
     with open(english_text_file, "r") as f: 
@@ -41,7 +44,6 @@ def task2():
 
     # Line 35 is the shortest one, line 2 the longest 
     for line_num in [35]: # or: range(len(lines)):
-        
         with open(grammar_file + str(line_num)) as f:
             grammar = f.read().split("\n") # set dummy features to 0
             grammar.append('[X] ||| OOV ||| OOV ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0 oov=1')
@@ -118,11 +120,27 @@ def task2():
             osyms += "%s %s\n" % (ja, i+1)
         
         # Write everything to a file
-        with open("%sphrase-table-%s.fst" % (out_dir, line_num), "w") as f: 
+        fst_f = "%sphrase-table-%s.fst" % (out_dir, line_num)
+        isymbols_f = "%sphrase-table-%s.isyms" % (out_dir, line_num)
+        osymbols_f = "%sphrase-table-%s.osyms" % (out_dir, line_num)
+        output_f = "%sfst-%s.fst" % (out_dir_fst, line_num)
+
+        with open(fst_f, "w") as f: 
             f.write(fst)
-        with open("%sphrase-table-%s.isyms" % (out_dir, line_num), "w") as f: 
+        with open(isymbols_f, "w") as f: 
             f.write(isyms)
-        with open("%sphrase-table-%s.osyms" % (out_dir, line_num), "w") as f: 
+        with open(osymbols_f, "w") as f: 
+            f.write(osyms)
+
+        # make real fsts
+        call = "fstcompile --isymbols=" + isymbols_f + " --osymbols=" + osymbols_f + " " + fst_f + " " + output_f
+        subprocess.call([call], shell=True)
+
+        # sort the fst (that's needed for the composition later on)
+        output_fst = "%sfst-%s.fst" % (out_dir_fst, line_num)
+        sort_f = "%sfst_sort-%s.fst" % (out_dir_sort, line_num)
+        call_sort = "fstarcsort " + output_fst + " " + sort_f
+        subprocess.call([call_sort], shell=True)
   
 
 if __name__ == '__main__':
