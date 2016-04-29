@@ -1,27 +1,29 @@
 ###
 # In task 0, we preprocess all sentences and replace all words
 # that are not in the grammar by OOV. Also, we keep only 100 words.
+from helpers import *
 
-def preprocess_oov(sentences, grammar_file, N=100):
+def preprocess_oov(self, raw_sentences_fn, 
+    grammar_base_fn=None, num_sentences=None, sentences_fn=None):
     """Replace all words not in the grammar by OOV and write to new file
 
     Args:
         sentences: text file with the sentences (e.g. `dev.en`)
         grammar_file: the file with a sentence grammar (Without extension; e.g. `grammar.`)
-        N: Number of sentences, default 100
+        num_sentences: Number of sentences, defaults to the value of Helper
     """
+    if num_sentences == None: num_sentences = self.num_sentences
+    if sentences_fn == None: sentences_fn = self.sentences_fn
 
-    with open(sentences, 'r') as  f:
-        lines = f.read().split("\n")
+    with open(raw_sentences_fn, 'r') as  f:
+        sentences = f.read().split("\n")
     
-    ooved_lines = '';
-    for line_num in range(N):
-
-        with open(grammar_file + str(line_num), 'r') as f:
-            grammar = f.read()
+    ooved_sentences = '';
+    for line_num in range(num_sentences):
         
         en_words = set()
-        for rule in grammar.split("\n"):
+        grammar = self.get_grammar(line_num, grammar_base_fn)
+        for rule in grammar:
             if rule == "": continue
             parts = rule.split(" ||| ")
             english = parts[1].split(" ")
@@ -30,13 +32,15 @@ def preprocess_oov(sentences, grammar_file, N=100):
 
         # Replace all the unknown words with OOV and add the OOV'ed line to ooved_lines
         replace_oov = lambda word: word if word in en_words else "OOV"
-        ooved_words = map(replace_oov, lines[line_num].split(" "))
-        ooved_lines += " ".join(ooved_words) + "\n"
+        ooved_words = map(replace_oov, sentences[line_num].split(" "))
+        ooved_sentences += " ".join(ooved_words) + "\n"
 
-    with open('../data/dev-ooved.en', 'w') as f:
-        f.write(ooved_lines)
-       
+    with open(self.sentences_fn, 'w') as f:
+        f.write(ooved_sentences)
+
+# Add to helper class
+Helper.preprocess_oov = preprocess_oov
 
 if __name__ == '__main__':
-    # Preprocess our sentences
-    preprocess_oov('../data/dev.en', '../data/rules.monotone.dev/grammar.')
+    H = Helper()
+    H.preprocess_oov('../data/dev.en')
