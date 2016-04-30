@@ -21,8 +21,18 @@ The FST class is our custom wrapper around the command line interface for OpenFS
 ## Helper Class
 This class has a simple goal: to help. It contains some useful function (non FST-specific), that are used in all tasks. Also, it contains global options such as the number of sentences, some directories, filenames etc. Within a given task, we typically extend the class, so that we can easily access those niceties. 
 
-The syntax for that is pretty straight-forward
+```python
+from FST import *
+
+my_fst = FST("../data/input/input-0")
+my_fst.compile()
+my_fst.sort()
+my_fsts.draw() # Look at ../data/input/input-0.pdf!
+# Or my_fst.compile().sort().draw()
 ```
+
+The syntax for that is pretty straight-forward
+```python
 from Helper import *
 
 # In my_file.py, *outside* the Helper class definition
