@@ -13,7 +13,7 @@ def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
     Turns a list of sentences into intput transducers. These are
     all stored as .txtfst, .osyms, .isyms, .fst files.
     """
-    if sentences == None: sentences = self.load_sentences()
+    if sentences == None: sentences = self.get_sentences()
 
     for line_num, sentence in enumerate(sentences):
 
