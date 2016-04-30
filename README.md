@@ -51,10 +51,10 @@ print my_helper.my_function() # Prints the number of sentences
 
 FSTs are described by several files. We assume that files belonging to the same FST have the same name, but different extensions. The extensions used are the following:
 
-* `**.txtfst**` A text file describing the fst
-* `**.fst**` A compiled fst
-* `**.isyms**` A text file with in-labels
-* `**.osyms**` A text file with out-labels
+* `.txtfst` A text file describing the fst
+* `.fst` A compiled fst
+* `.isyms` A text file with in-labels
+* `.osyms` A text file with out-labels
 
 The `FST` class also crucially relies on these naming conventions. 
 
