@@ -47,5 +47,5 @@ Helper.generate_input_fsts = generate_input_fsts
 
 if __name__ == "__main__" or True:
     H = Helper()
-    # H.generate_input_fsts()
-    H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/blackdog-input")
+    H.generate_input_fsts()
+    #H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/blackdog-input")

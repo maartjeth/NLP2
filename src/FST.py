@@ -114,7 +114,7 @@ class FST:
 		""" 
 
 		#call = "fstshortestpath " + " " + n + " " + fst + " " + short_fst
-		call = "fstshortestpath " +  self.fst_fn + " " + short_fst_base
+		call = "fstshortestpath --nshortest=%s %s %s.fst" % (n, self.fst_fn, short_fst_base)
 		subprocess.call([call], shell=True)
 
 		# TODO: are these really the correct isymbols and osymbols??
@@ -123,6 +123,3 @@ class FST:
 		n_best_fst.osymbols_fn = self.osymbols_fn
 
 		return n_best_fst
-
-		# TODO: still include n
-		#fstshortestpath [--opts] a.fst out.fst

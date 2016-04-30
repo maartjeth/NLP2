@@ -125,9 +125,9 @@ Helper.generate_phrase_table_fsts = generate_phrase_table_fsts
 
 if __name__ == '__main__':
     H = Helper()
-    # H.generate_phrase_table_fsts() # All data
+    H.generate_phrase_table_fsts() # All data
 
     # Run on dummy data
-    H.generate_phrase_table_fsts(sentence_ids = [0],
-        out_base = "../dummydata/blackdog-phrase-table", 
-        grammar_base_fn = "../dummydata/blackdog", draw=False)
+    #H.generate_phrase_table_fsts(sentence_ids = [0],
+    #    out_base = "../dummydata/blackdog-phrase-table", 
+    #    grammar_base_fn = "../dummydata/blackdog", draw=False)
