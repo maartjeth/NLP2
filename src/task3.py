@@ -13,7 +13,13 @@ def task3(src_fst, trnsl_fst, out_dir, n=100):
 	n_best_fst.draw()
 
 	# "Decompile" into readable format
-	n_best_fst.decompile("../dummydata/short-path-fsts/short-test.txtfst")
+	output_txtfst = "../dummydata/short-path-fsts/short-test.txtfst"
+	n_best_fst.decompile(output_txtfst)
+
+	# Write the n-best translations in text format
+	trans = n_best_to_text(output_txtfst)
+
+	return trans
 
 
 
@@ -21,6 +27,22 @@ def task3(src_fst, trnsl_fst, out_dir, n=100):
 	#short_fst = "../data/short-path-fsts/short-test.fst"
 	#find_n_best(str(n), short_fst)
 
+def n_best_to_text(txtfst):
+	with open(txtfst, 'r') as f:
+		lines = f.read().split("\n")
+		complete_trans = ""
+		for line in lines:
+			parts = line.split("\t")
+			
+			if len(parts) == 5:
+				phrase = parts[3]
+				trans = "%s |%s-%s| " % (phrase, str(parts[0]), str(parts[1]))
+				complete_trans += trans
+
+	# TODO: what if longer phrases?
+	# should it be sorted?
+	# multiple phrases --> what does the file look like then?
+	return complete_trans
 
 
 
@@ -32,7 +54,11 @@ if __name__ == '__main__':
 	phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
 	out_dir = "../dummydata/blackdog-composite-0"
 
-	task3(input_fst, phrase_table_fst, out_dir)
+	trans_file = "../dummydata/output_task3.txt"
+	with open(trans_file, 'w') as f:
+		trans = task3(input_fst, phrase_table_fst, out_dir)
+		f.write(trans)
+
 
 
 
