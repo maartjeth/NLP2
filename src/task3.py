@@ -2,30 +2,41 @@ import subprocess
 from Helper import *
 from FST import *
 
-def task3(src_fst, trnsl_fst, out_dir, line_num, n=100):
+def task3(src_fst, trnsl_fst, out_dir, n=100):
 
-	outfst = "../data/composition-fsts/combined-test.fst" # this is for testing purposes now, need to change in final version
-	compose_fst(src_fst, trnsl_fst, outfst)
+	# Composition using the FST class
+	composite = input_fst.compose(phrase_table_fst, out_dir)
+
+	# Finding n-best paths
+	short_fst = "../dummydata/short-path-fsts/short-test"
+	n_best_fst = composite.find_n_best(str(n), short_fst)
+	n_best_fst.draw()
+
+	# "Decompile" into readable format
+	n_best_fst.decompile("../dummydata/short-path-fsts/short-test.txtfst")
 
 
-	short_fst = "../data/short-path-fsts/short-test.fst"
-	find_n_best(str(n), outfst, short_fst)
+
+	#def find_n_best(self, n, short_fst_base):
+	#short_fst = "../data/short-path-fsts/short-test.fst"
+	#find_n_best(str(n), short_fst)
 
 
-def find_n_best(n, fst, short_fst):
-	#call = "fstshortestpath " + " " + n + " " + fst + " " + short_fst
-	call = "fstshortestpath " + fst + " " + short_fst
-	subprocess.call([call], shell=True)
-	# TODO: still include n
-	#fstshortestpath [--opts] a.fst out.fst
+
+
+
 
 if __name__ == '__main__':
 
-	# Composition using the FST class
 	input_fst = FST("../dummydata/blackdog-input-0")
 	phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
-	composite = input_fst.compose(phrase_table_fst, "../dummydata/blackdog-composite-0")
-	composite.draw()
+	out_dir = "../dummydata/blackdog-composite-0"
+
+	task3(input_fst, phrase_table_fst, out_dir)
+
+
+
+	#composite.draw()
 
 	##
 	# This is weird; the composite does not look like figure 4,

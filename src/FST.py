@@ -95,5 +95,33 @@ class FST:
 		new_fst = FST(new_fst_base)
 		new_fst.isymbols_fn = self.isymbols_fn
 		new_fst.osymbols_fn = other_fst.osymbols_fn
+
 		return new_fst
 
+	def decompile(self, decompiled_fst_file):
+		""" 
+		Decompiles an FST into a "readable" text file
+		"""
+		#if self.isymbols == None or self.osymbols == None:
+		#call ="fstprint %s %s" % (self.fst_fn, decompiled_fst_file)
+		#else:
+		call = "fstprint --isymbols=%s --osymbols=%s %s %s" % (self.isymbols_fn, self.osymbols_fn, self.fst_fn, decompiled_fst_file)
+		subprocess.call([call], shell=True)
+
+	def find_n_best(self, n, short_fst_base):
+		""" 
+		Finds the n-best paths in an fst
+		""" 
+
+		#call = "fstshortestpath " + " " + n + " " + fst + " " + short_fst
+		call = "fstshortestpath " + self.fst_fn + " " + short_fst_base
+		subprocess.call([call], shell=True)
+
+		n_best_fst = FST(short_fst_base)
+		n_best_fst.isymbols_fn = self.isymbols_fn
+		n_best_fst.osymbols_fn = self.osymbols_fn
+
+		return n_best_fst
+
+		# TODO: still include n
+		#fstshortestpath [--opts] a.fst out.fst
