@@ -16,10 +16,7 @@ Here the phrase tables as given in `grammar.i` are turned into transducers. We f
 # Architecture
 
 ## FST Class
-The FST class is our custom wrapper around the command line interface for OpenFST. It should make dealing with all those different files much easier and more streamlined, as the class will always respect the naming conventions (see below). The FST class is initialized using its (file) base.
-
-## Helper Class
-This class has a simple goal: to help. It contains some useful function (non FST-specific), that are used in all tasks. Also, it contains global options such as the number of sentences, some directories, filenames etc. Within a given task, we typically extend the class, so that we can easily access those niceties. 
+The FST class is our custom wrapper around the command line interface for OpenFST. It should make dealing with all those different files much easier and more streamlined, as the class will always respect the naming conventions (see below). The FST class is initialized using its (file) base. An example...
 
 ```python
 from FST import *
@@ -31,7 +28,10 @@ my_fsts.draw() # Look at ../data/input/input-0.pdf!
 # Or my_fst.compile().sort().draw()
 ```
 
-The syntax for that is pretty straight-forward
+## Helper Class
+This class has a simple goal: to help. It contains some useful function (non FST-specific), that are used in all tasks. Also, it contains global options such as the number of sentences, some directories, filenames etc. Within a given task, we typically extend the class, so that we can easily access those niceties. 
+
+The syntax for that is pretty straight-forward:
 ```python
 from Helper import *
 
@@ -51,10 +51,10 @@ print my_helper.my_function() # Prints the number of sentences
 
 FSTs are described by several files. We assume that files belonging to the same FST have the same name, but different extensions. The extensions used are the following:
 
-* **.txtfst** A text file describing the fst
-* **.fst** A compiled fst
-* **.isyms** A text file with in-labels
-* **.osyms** A text file with out-labels
+* `**.txtfst**` A text file describing the fst
+* `**.fst**` A compiled fst
+* `**.isyms**` A text file with in-labels
+* `**.osyms**` A text file with out-labels
 
 The `FST` class also crucially relies on these naming conventions. 
 
