@@ -73,9 +73,10 @@ class FST:
 			see http://www.graphviz.org/doc/info/output.html for all formats
 		"""
 		# Check if the fst isn't too large
-		with open(self.txtfst_fn, 'r') as f:
-			num_lines = sum(1 for _ in f)
-		if num_lines > 100: print "WARNING: drawing a very large FST (%s lines) can take a long time." % num_lines
+		if os.path.isfile(self.txtfst_fn):
+			with open(self.txtfst_fn, 'r') as f:
+				num_lines = sum(1 for _ in f)
+			if num_lines > 100: print "WARNING: drawing a very large FST (%s lines) can take a long time." % num_lines
 
 		dot_fn = self.base + '.dot.tmp'
 		calls = [
@@ -86,3 +87,13 @@ class FST:
 		for call in calls:
 			subprocess.call([call], shell=True)
 		return self
+
+	def compose(self, other_fst, new_fst_base):
+		call = "fstcompose %s %s %s.fst" %  (self.fst_fn, other_fst.fst_fn, new_fst_base)
+		subprocess.call([call], shell=True)
+
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = other_fst.osymbols_fn
+		return new_fst
+

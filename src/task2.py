@@ -33,7 +33,7 @@ def get_feature_weights(self):
 Helper.get_feature_weights = get_feature_weights
 
 
-def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, out_base=None, debug=False):
+def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, out_base=None, draw=False):
     """
     Generates all phrase table FSTS 
 
@@ -41,15 +41,10 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
         sentence_ids: a list of ids (numbers) of the sentences (to find the right grammars)
         grammar_base_fn: the base of the grammr files; defaults to Helper value.
         out_base: base of the resulting fsts; defaults to Helper value for phrase tables.
-        debug: if True, it uses the `../dummydata/theblackdog` FST.
+        draw: draw the fsts?
     """
     if out_base == None: out_base = self.phrase_table_fst_base
     if sentence_ids == None: sentence_ids = range(self.num_sentences)
-
-    if debug:
-        out_base = "../dummydata/theblackdog"
-        sentence_ids = [0]
-        grammar_base_fn="../dummydata/theblackdog"
 
     for line_num in sentence_ids:
         #print "Starting sentence %s (%s rules in grammar)" % (line_num, len(grammar))
@@ -123,11 +118,16 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
         fst.compile().sort()
 
         # Drawing large FST's can take a very long time!
-        if debug: fst.draw()
+        if draw: fst.draw()
   
 # Add as method to Helper class
 Helper.generate_phrase_table_fsts = generate_phrase_table_fsts
 
 if __name__ == '__main__':
     H = Helper()
-    H.generate_phrase_table_fsts()
+    # H.generate_phrase_table_fsts() # All data
+
+    # Run on dummy data
+    H.generate_phrase_table_fsts(sentence_ids = [0],
+        out_base = "../dummydata/blackdog-phrase-table", 
+        grammar_base_fn = "../dummydata/blackdog", draw=True)
