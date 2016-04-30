@@ -16,9 +16,9 @@ def task3(src_fst, trnsl_fst, out_dir_comp, out_dir_short, out_dir_decomp, n=3):
 	n_best_fst.decompile(out_dir_decomp)
 
 	# Write the n-best translations in text format
-	trans = n_best_to_text(out_dir_decomp)
+	trans, weights = n_best_to_text(out_dir_decomp)
 
-	return trans
+	return trans, weights
 
 
 
@@ -55,15 +55,20 @@ def n_best_to_text(txtfst):
 			else:
 				print "n_best_to_text: needs either 4 or 5 columns"
 
-	# make trans
+
+
+	# Make transitions for text file
+
 	starting_points = path_dict['0']
 	all_transitions = ''
+	weights = []
+
+	# loop over all paths, they have ascending states
 	for start in starting_points:
 		eps_seen_before = False
 		pos1 = ''
 		state = start[0]
 
-		# loop over all paths, they have ascending states
 		if start[2] == '<eps>':
 			eps_seen_before = True
 			pos1 = start[1]
@@ -74,6 +79,7 @@ def n_best_to_text(txtfst):
 		print "start transition: ", transition
 
 		state_int = int(state)
+		weight = 0.0
 		while state_int >= 1:
 			print "state int: ", state_int
 			print "eps seen before: ", eps_seen_before
@@ -84,6 +90,10 @@ def n_best_to_text(txtfst):
 				print "word: ", word
 				pos = state_info[0][1] 
 				print "pos: ", pos
+				
+				if len(state_info[0]) > 3:
+					new_weight = float(state_info[0][3])
+					weight += new_weight
 
 				if word == '<eps>':
 					# if it's the first epsilon in the row you encounter
@@ -101,12 +111,14 @@ def n_best_to_text(txtfst):
 					new_transition = "%s |%s:%s| " % (word, pos, pos)
 					#print "New transition: ", new_transition
 					transition += new_transition
+			
 			state_int -= 1
 
 		all_transitions += transition+'\n'
+		weights.append(weight)
 		print "Transition: ", transition
 
-	return all_transitions
+	return all_transitions, weights
 
 
 
@@ -130,7 +142,8 @@ if __name__ == '__main__':
 
 	trans_file = "../data/output/output_task3.txt"
 	with open(trans_file, 'w') as f:
-		trans = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp)
+		trans, weights = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp)
+		print weights
 		f.write(trans)
 
 
