@@ -84,17 +84,17 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
             else:
                 # Arc 0 --> [new node] labeled english[0]:<eps> with weight 1
                 node += 1
-                fst_txt += "0 %s %s <eps> 1\n" % (node, english[0])
+                fst_txt += "0 %s %s <eps> 0\n" % (node, english[0])
 
                 for en in english[1:]:
                     # Arc [node] --> [new node] labeled english[i]:<eps> with weight 1
                     node += 1
-                    fst_txt += "%s %s %s <eps> 1\n" % (node-1, node, en)
+                    fst_txt += "%s %s %s <eps> 0\n" % (node-1, node, en)
 
                 for ja in japanese[:-1]:
                     node += 1
                     # Arc [node] --> [new node] labeled <eps>:japanese[i] with weight 1
-                    fst_txt += "%s %s <eps> %s 1\n" % (node-1, node, ja)
+                    fst_txt += "%s %s <eps> %s 0\n" % (node-1, node, ja)
 
                 # Arc [node] --> 0 labeled <eps>:japanese[-1] with the weight of the rule
                 fst_txt += "%s 0 <eps> %s %s\n" % (node, japanese[-1], weight)
