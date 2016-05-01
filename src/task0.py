@@ -32,7 +32,7 @@ def preprocess_oov(self, raw_sentences_fn,
                 en_words.add(word)
 
         # Replace all the unknown words with OOV and add the OOV'ed line to ooved_lines
-        replace_oov = lambda word: word if word in en_words else "OOV"
+        replace_oov = lambda word: word if word in en_words else self.OOV
         ooved_words = map(replace_oov, sentences[line_num].split(" "))
         ooved_sentences += " ".join(ooved_words) + "\n"
 

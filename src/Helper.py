@@ -16,6 +16,8 @@ class Helper:
 		self.input_fst_base 		= "../data/inputs/input"
 		self.phrase_table_fst_base 	= "../data/phrase-tables/phrase-table"
 
+		self.OOV = "OOV"
+
 
 	def get_sentences(self, sentences_fn=None):
 		"""
@@ -34,6 +36,6 @@ class Helper:
 		if grammar_base_fn == None: grammar_base_fn = self.grammar_base_fn
 		with open(grammar_base_fn + "." + str(i), 'r') as f:
 			grammar = f.read().split("\n") # set dummy features to 0
-			grammar.append('[X] ||| OOV ||| OOV ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0')
+			grammar.append('[X] ||| %s ||| %s ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0' % (self.OOV, self.OOV))
 		return [rule for rule in grammar if rule != ""]
     
