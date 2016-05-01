@@ -155,3 +155,13 @@ class FST:
 		n_best_fst.osymbols_fn = self.osymbols_fn
 
 		return n_best_fst
+
+	def copy_symbols(self):
+		isyms_fn = self.base + ".isyms"
+		osyms_fn = self.base + ".osyms" 
+		call = "cp %s %s; cp %s %s;" % (self.isymbols_fn, isyms_fn, self.osymbols_fn, osyms_fn)
+		subprocess.call([call], shell=True)
+
+
+
+

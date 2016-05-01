@@ -8,12 +8,13 @@
 from Helper import *
 from FST import *
 
-def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input", draw=False):
+def generate_input_fsts(self, sentences=None, out_base=None, draw=False):
     """
     Turns a list of sentences into intput transducers. These are
     all stored as .txtfst, .osyms, .isyms, .fst files.
     """
     if sentences == None: sentences = self.get_sentences()
+    if out_base == None: out_base = self.input_fst_base
 
     for line_num, sentence in enumerate(sentences):
 

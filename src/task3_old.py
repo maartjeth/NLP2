@@ -14,6 +14,7 @@ def task3(src_fst, trnsl_fst, out_dir_comp, out_dir_short, out_dir_decomp, n=3):
 	input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
 	input_fst.compile()
 	composite = input_fst.compose(phrase_table_fst, out_dir_comp)
+	composite.draw()
 
 	# Finding n-best paths
 	n_best_fst = composite.find_n_best(str(n), out_dir_short)
@@ -136,22 +137,26 @@ def n_best_to_text(txtfst):
 
 if __name__ == '__main__':
 
-	#input_fst = FST("../dummydata/blackdog-input-0")
-	#phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
-	#out_dir = "../dummydata/blackdog-composite-0"
+	input_fst = FST("../dummydata/blackdog-input-0")
+	phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
+	out_dir_comp = "../dummydata/blabla-comp"
+	out_dir_short = "../dummydata/blabla-short"
+	out_dir_decomp = "../dummydata/blabla-decomp"
+	all_trans, _ = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp, n=5)
+	print 
+	print all_trans
+	# input_fst = FST("../data/inputs/input-35")
+	# phrase_table_fst = FST("../data/phrase-tables/phrase-table-35")
+	# out_dir_comp = "../data/composition-fsts/comp-35"
+	# out_dir_short = "../data/short-path-fsts/short-35"
+	# out_dir_decomp = "../data/short-path-fsts/short-35.txtfst"
 
-	input_fst = FST("../data/inputs/input-35")
-	phrase_table_fst = FST("../data/phrase-tables/phrase-table-35")
-	out_dir_comp = "../data/composition-fsts/comp-35"
-	out_dir_short = "../data/short-path-fsts/short-35"
-	out_dir_decomp = "../data/short-path-fsts/short-35.txtfst"
 
-
-	trans_file = "../data/output/output_task3.txt"
-	with open(trans_file, 'w') as f:
-		trans, weights = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp)
-		print weights
-		f.write(trans)
+	# trans_file = "../data/output_task3.txt"
+	# with open(trans_file, 'w') as f:
+	# 	trans, weights = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp)
+	# 	print weights
+	# 	f.write(trans)
 
 
 
