@@ -61,7 +61,7 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
             osymbols += japanese
 
             # Calculate additional features
-            OOV_count = english.count('OOV')
+            OOV_count = english.count(self.OOV)
             glue = 1 
             word_penalty = float(len(english)) * (-1.0 / math.log(10))
 
@@ -130,4 +130,4 @@ if __name__ == '__main__':
     # Run on dummy data
     H.generate_phrase_table_fsts(sentence_ids = [0],
         out_base = "../dummydata/blackdog-phrase-table", 
-        grammar_base_fn = "../dummydata/blackdog", draw=False)
+        grammar_base_fn = "../dummydata/blackdog", draw=True)
