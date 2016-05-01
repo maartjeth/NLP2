@@ -4,8 +4,15 @@ from Helper import *
 from FST import *
 
 def task3(src_fst, trnsl_fst, out_dir_comp, out_dir_short, out_dir_decomp, n=3):
-
-	# Composition using the FST class
+	
+	#######
+	## Compose the FSTs
+	# Updating osymbols and recompiling is pretty essential: all isymbols
+	# of the phrase-table FST should be osymbols of the input FST. This is 
+	# easily fixed by  updating the input_fst.osymbols accordingly
+	# More info in the Notes section of the README
+	input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
+	input_fst.compile()
 	composite = input_fst.compose(phrase_table_fst, out_dir_comp)
 
 	# Finding n-best paths
