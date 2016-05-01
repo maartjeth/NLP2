@@ -24,8 +24,9 @@ def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input", d
         words = sentence.split(" ")
         voc = set()
         fst_txt = ""
-        isymbols_txt = ""
+        isymbols_txt = "<eps> 0\n"
         for i, word in enumerate(words):
+            i += 1
             voc.add(word)
             fst_txt += "%s %s %s %s 0\n" % (i, i+1, i, word)
             isymbols_txt += "%s %s\n" % (i, i)
