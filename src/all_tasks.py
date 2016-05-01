@@ -13,7 +13,7 @@ from task3 import *
 if __name__ == "__main__":
 	
 	# The tasks to perform
-	tasks = [1,2,3]
+	tasks = [0, 1, 2, 3]
 
 	# The helper with all parameters (these are the defaults, but repeated for clarity)
 	H = Helper()
