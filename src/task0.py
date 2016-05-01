@@ -4,7 +4,7 @@
 from Helper import *
 from FST import *
 
-def preprocess_oov(self, raw_sentences_fn, 
+def preprocess_oov(self, raw_sentences_fn=None, 
     grammar_base_fn=None, num_sentences=None, sentences_fn=None):
     """Replace all words not in the grammar by OOV and write to new file
 
@@ -15,6 +15,7 @@ def preprocess_oov(self, raw_sentences_fn,
     """
     if num_sentences == None: num_sentences = self.num_sentences
     if sentences_fn == None: sentences_fn = self.sentences_fn
+    if raw_sentences_fn == None: raw_sentences_fn = self.raw_sentences_fn
 
     with open(raw_sentences_fn, 'r') as  f:
         sentences = f.read().split("\n")

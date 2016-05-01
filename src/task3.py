@@ -3,176 +3,184 @@ from collections import defaultdict
 from Helper import *
 from FST import *
 
-def task3(src_fst, trnsl_fst, out_dir_comp, out_dir_short, out_dir_decomp, n=3):
-	
-	#######
-	## Compose the FSTs
-	# Updating osymbols and recompiling is pretty essential: all isymbols
-	# of the phrase-table FST should be osymbols of the input FST. This is 
-	# easily fixed by  updating the input_fst.osymbols accordingly
-	# More info in the Notes section of the README
-	input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
-	input_fst.compile()
-	composite = input_fst.compose(phrase_table_fst, out_dir_comp)
 
-	# Finding n-best paths
-	n_best_fst = composite.find_n_best(str(n), out_dir_short)
-	n_best_fst.draw()
-
-	# "Decompile" into readable format
-	n_best_fst.decompile(out_dir_decomp)
-
-	# Write the n-best translations in text format
-	trans, weights = n_best_to_text(out_dir_decomp)
-
-	return trans, weights
-
-
-
-	#def find_n_best(self, n, short_fst_base):
-	#short_fst = "../data/short-path-fsts/short-test.fst"
-	#find_n_best(str(n), short_fst)
-
-def n_best_to_text(txtfst):
-	""" Write the n-best file to text format
-
-		First preprocess the file: put all lines in path_dict
-		Key = state
-		Value = all other info
-
-		Later on we use this info to proceed over the graph, as one path follows
-		an ascending paths of states
-
+def get_next_states(state, states, rec=0, max_rec_depth=1000):
 	"""
-	
-	# preprocess file
-	path_dict = defaultdict(list)	
-	with open(txtfst, 'r') as f:
-		lines = f.read().split("\n")
-		complete_trans = ""
-		starting_points = []
-		for line in lines:
-			parts = line.split("\t")
-			
+	Recursively get all future states from the current one.
 
-			if len(parts) == 5:
-				path_dict[parts[0]].append((parts[1], parts[2], parts[3], parts[4]))
+	Args:
+		state: a tuple (next_state_id, isymbol, osymbol, weight)
+				describing this state
+		states: a dictionary with all states, indexed by state indices
+		returns: a list of future states.
+	"""
+	if rec > max_rec_depth:
+		print "ERROR: Max recursion depth exceeded!"
+		return [state] 
+
+	next_state_id = state[0]
+	if next_state_id == 1:
+		return [state]
+	else:
+		next_state = states[next_state_id][0]
+		return [state] + get_next_states(next_state, states, 
+			rec=rec+1, max_rec_depth=max_rec_depth)
+
+def path2translation(path):
+	"""
+	Turn a path (list of states) into a string formatted as in the instructions
+	For more details about the path format, see `get_next_states()`
+	"""
+
+	# Go through the path store phrases and start/ending positions
+	phrases = []
+	begin_new_phrase = True
+	for _, isymb, osymb, _ in path:
+		
+		# If inside the initial segment of empty states
+		if osymb == "<eps>" and isymb == "<eps>":
+			continue
+
+		# Else, if inside a multiword phrase
+		elif osymb == "<eps>" or isymb == "<eps>":
+			if begin_new_phrase:
+				phrases += [{"phrase": "", "start": int(isymb), "end": int(isymb)-1}]
+				begin_new_phrase = False
+			
+			if osymb == "<eps>":
+				# Update the length/ending position of the phrase
+				phrases[-1]["end"] += 1
+			else:
+				phrases[-1]["phrase"] += osymb + " "
+
+		# Else, if in a single-word phrase
+		else: 
+			phrases += [{"phrase": osymb, "start": int(isymb), "end": int(isymb)}]
+			begin_new_phrase = True
+
+
+	# Finally, get the derivation and translation strings
+	derivation = ""
+	translation = ""
+	for phrase in phrases:
+		if phrase["phrase"] != "":
+			if phrase["phrase"][-1] == " ": phrase["phrase"] = phrase["phrase"][:-1]
+			derivation += "%s |%s-%s| " % (phrase['phrase'], phrase['start'], phrase['end'])
+			translation += phrase["phrase"] + " "
+	translation = translation[:-1]
+	derivation = derivation[:-1]
+	weight =  sum([float(w) for _, _, _, w in path])
+
+	return translation, derivation, weight
+
+def get_path_translations(txtfst_fn):
+	"""
+	Get the translations of to all paths in the FST. If the FST has loops,
+	this will fail miserably. Typically, you use this function on a FST
+	that contains the top-n paths.
+
+	Arguments:
+		txtfst_fn: filename of a .txtfst file describing the FST.
+	"""
+	states = defaultdict(list)	
+	with open(txtfst_fn, 'r') as f:
+		lines = f.read().split("\n")
+		for line in lines:
+			if line == "": continue
+			parts = line.split("\t")
+			state = int(parts[0])
+
+			if len(parts) == 1: continue
+			elif len(parts) == 5:
+				states[state].append((int(parts[1]), parts[2], parts[3], parts[4]))
 			elif len(parts) == 4: # case with no weights --> epsilon
-				path_dict[parts[0]].append((parts[1], parts[2], parts[3]))
+				states[state].append((int(parts[1]), parts[2], parts[3], 0))
 			else:
 				print "n_best_to_text: needs either 4 or 5 columns"
 
+	# Get all path, transform to path strings and return.
+	translations = []
+	for init_state in states[0]:
+		path = get_next_states(init_state, states)
+		translations.append(path2translation(path))
 
+	return translations
 
-	# Make transitions for text file
+def generate_best_derivations_fsts(self, n=100):
+	"""
+	Get the best n derivations from a given FST
+	"""
+	for i in range(self.num_sentences):
+		best_derivations_fn = self.best_mono_derivation_fst_base + ("-%s.100best" % i)
+		fst = FST("%s-%s" % (self.mono_translation_fst_base, i))
+		best_derivations_fst = fst.find_n_best(n, best_derivations_fn)
+		best_derivations_fst.decompile()
+		best_derivations_fst.copy_symbols()
 
-	starting_points = path_dict['0']
-	all_transitions = ''
-	weights = []
+		# Save to file
+		out_fn = "%s.100best.%s" % (self.best_mono_derivations_base, i)
+		translations = get_path_translations(best_derivations_fst.txtfst_fn)
+		with open(out_fn, "w") as out_f:
+			for trans, deriv, w in translations:
+				out_f.write(deriv +"\n")
 
-	# loop over all paths, they have ascending states
-	for start in starting_points:
-		eps_seen_before = False
-		pos1 = ''
-		state = start[0]
+# Add as method to Helper
+Helper.generate_best_derivations_fsts = generate_best_derivations_fsts
 
-		if start[2] == '<eps>':
-			eps_seen_before = True
-			pos1 = start[1]
-			transition = ""
-		else:
-			transition = "%s |%s:%s| " % (start[2], start[1], start[1])
+def generate_mono_translation_fsts(self, translation_fst_base=None):
+	"""
+	Generates the monotone translation FSTs. Those are the compositions of input
+	and output FSTs.
+	"""
+	if translation_fst_base == None: translation_fst_base = self.mono_translation_fst_base
 
-		print "start transition: ", transition
+	for i in range(self.num_sentences):
 
-		state_int = int(state)
-		weight = 0.0
-		while state_int >= 1:
-			print "state int: ", state_int
-			print "eps seen before: ", eps_seen_before
-			
-			state_info = path_dict[str(state_int)]
-			if len(state_info) > 0:
-				word = state_info[0][2]
-				print "word: ", word
-				pos = state_info[0][1] 
-				print "pos: ", pos
-				
-				if len(state_info[0]) > 3:
-					new_weight = float(state_info[0][3])
-					weight += new_weight
+		# The phrase table
+		phrase_table_fst = FST("%s-%s" % (self.phrase_table_fst_base, i))
 
-				if word == '<eps>':
-					# if it's the first epsilon in the row you encounter
-					if eps_seen_before == False:
-						eps_seen_before = True
-						pos1 = pos
-						print "pos1: ", pos1
+		# Updating osymbols and recompiling is pretty essential: all isymbols
+		# of the phrase-table FST should be osymbols of the input FST. This is 
+		# easily fixed by  updating the input_fst.osymbols accordingly
+		# More info in the Notes section of the README
+		input_fst = FST("%s-%s" % (self.input_fst_base, i))
+		input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
+		input_fst.compile()
 
-				elif word != '<eps>' and eps_seen_before == True:
-					eps_seen_before = False
-					new_transition = "%s |%s:%s| " % (word, pos1, pos)
-					transition += new_transition
-					print "transition: ", transition
-				elif word != '<eps>' and eps_seen_before == False:
-					new_transition = "%s |%s:%s| " % (word, pos, pos)
-					#print "New transition: ", new_transition
-					transition += new_transition
-			
-			state_int -= 1
+		# Generate translation SFT and copy in- and out-symbol files
+		translation = input_fst.compose(phrase_table_fst, "%s-%s" % (translation_fst_base, i))
+		translation.decompile()
+		translation.copy_symbols()
 
-		all_transitions += transition+'\n'
-		weights.append(weight)
-		print "Transition: ", transition
-
-	return all_transitions, weights
-
-
-
-
-
-
+# Add as method to Helper
+Helper.generate_mono_translation_fsts = generate_mono_translation_fsts
 
 
 if __name__ == '__main__':
+	# Do do the whole thing
+	# H = Helper()
+	# H.generate_mono_translation_fsts()
+	# H.generate_best_derivations_fsts()
+	
+	# Generate composition: translation
+	input_fst = FST("../dummydata/blackdog-input-0")
+	phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
+	input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
+	input_fst.compile()
 
-	#input_fst = FST("../dummydata/blackdog-input-0")
-	#phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
-	#out_dir = "../dummydata/blackdog-composite-0"
+	translation = input_fst.compose(phrase_table_fst, "../dummydata/blackdog-translation-0")
+	# translation = FST("../dummydata/blackdog-translation-0")
+	translation.isymbols_fn = "../dummydata/blackdog-input-0.isyms"
+	translation.osymbols_fn = "../dummydata/blackdog-phrase-table-0.osyms"
+	translation.compile().draw()
 
-	input_fst = FST("../data/inputs/input-35")
-	phrase_table_fst = FST("../data/phrase-tables/phrase-table-35")
-	out_dir_comp = "../data/composition-fsts/comp-35"
-	out_dir_short = "../data/short-path-fsts/short-35"
-	out_dir_decomp = "../data/short-path-fsts/short-35.txtfst"
+	# Get best derivations
+	best_derivation_fst = translation.find_n_best(5, "../dummydata/blackdog-translation-best")
+	best_derivation_fst.decompile()
+	best_derivation_fst.copy_symbols()
+	best_derivation_fst.draw()
 
-
-	trans_file = "../data/output/output_task3.txt"
-	with open(trans_file, 'w') as f:
-		trans, weights = task3(input_fst, phrase_table_fst, out_dir_comp, out_dir_short, out_dir_decomp)
-		print weights
-		f.write(trans)
-
-
-
-
-	#composite.draw()
-
-	##
-	# This is weird; the composite does not look like figure 4,
-	# as a result of the OOV. If you drop the extra OOV rule from the
-	# grammar (comment out line 125 from Helper.py) and re-run task 1, 
-	# task 3 and task 3 (they now onlyuse dummydata) then you get the right figure:
-	# have a look at `blackdog-composite-0-without-OOV.pdf`
-	#
-	# So maybe look again at how we implemented OOV's and if they work as expected.
-
-
-
-	# src_fst = "../data/sorted-fsts/fst-sort-35.fst"
-	# trnsl_fst = "../data/sorted-fsts/fst-sort-36.fst"
-	# out_dir = "../data/composition-fsts"
-
-	# for line_num in range(1):
-	# 	task3(src_fst, trnsl_fst, out_dir, line_num)
-
+	# Print best translations
+	translations = get_path_translations(best_derivation_fst.txtfst_fn)
+	for trans, deriv, weight in translations:
+		print trans, "\t\t", deriv, "\t\t", weight

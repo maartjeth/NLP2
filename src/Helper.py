@@ -10,11 +10,15 @@ class Helper:
 	def __init__(self):
 		self.num_sentences = 100
 
-		self.sentences_fn 			= "../data/dev/dev-ooved.en"
+		self.raw_sentences_fn 		= "../data/dev.en"
+		self.sentences_fn 			= "../data/dev-ooved.en"
 		self.grammar_base_fn 		= "../data/rules.monotone.dev/grammar"
 		self.sentences_fn 			= "../data/dev-ooved.en"
-		self.input_fst_base 		= "../data/inputs/input"
-		self.phrase_table_fst_base 	= "../data/phrase-tables/phrase-table"
+		self.input_fst_base 		= "../data/1-inputs/input"
+		self.phrase_table_fst_base 	= "../data/2-phrase-tables/phrase-table"
+		self.mono_translation_fst_base 	= "../data/3-mono-translations/mono-translation"
+		self.best_mono_derivation_fst_base 	= "../data/4-best-mono-derivations/mono-translation"
+		self.best_mono_derivations_base 	= "../data/4-best-mono-derivations/monotone"
 
 		self.OOV = "OOV"
 

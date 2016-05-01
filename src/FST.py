@@ -27,8 +27,6 @@ class FST:
 			self.decompile()
 			return self.is_empty()
 
-
-
 	def update_osymbols(self, osymbols):
 		"""
 		Overwrites the .osyms file.
@@ -55,10 +53,9 @@ class FST:
 
 	def compile(self):
 		"""Compile FST"""
-		if os.path.isfile(self.isymbols_fn):
-			call = "fstcompile --isymbols=%s --osymbols=%s %s %s" % (self.isymbols_fn, self.osymbols_fn, self.txtfst_fn, self.fst_fn)
-		else:
-			call = "fstcompile --osymbols=%s %s %s" % (self.osymbols_fn, self.txt_fn, self.fst_fn)
+		isyms = " --isymbols="+self.isymbols_fn if os.path.isfile(self.isymbols_fn) else "";
+		osyms = " --osymbols="+self.osymbols_fn if os.path.isfile(self.osymbols_fn) else "";
+		call = "fstcompile%s%s %s %s" % (isyms, osyms, self.txtfst_fn, self.fst_fn)
 		subprocess.call([call], shell=True)
 		return self
 
@@ -148,13 +145,23 @@ class FST:
 		Finds the n-best paths in an fst
 		""" 
 
-		#call = "fstshortestpath " + " " + n + " " + fst + " " + short_fst
 		call = "fstshortestpath --nshortest=%s %s %s.fst" % (n, self.fst_fn, short_fst_base)
 		subprocess.call([call], shell=True)
 
 		# TODO: are these really the correct isymbols and osymbols??
+		# Bas: seems like it!
 		n_best_fst = FST(short_fst_base)
 		n_best_fst.isymbols_fn = self.isymbols_fn
 		n_best_fst.osymbols_fn = self.osymbols_fn
 
 		return n_best_fst
+
+	def copy_symbols(self):
+		isyms_fn = self.base + ".isyms"
+		osyms_fn = self.base + ".osyms" 
+		call = "cp %s %s; cp %s %s;" % (self.isymbols_fn, isyms_fn, self.osymbols_fn, osyms_fn)
+		subprocess.call([call], shell=True)
+
+
+
+
