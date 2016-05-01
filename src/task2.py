@@ -131,6 +131,3 @@ if __name__ == '__main__':
     H.generate_phrase_table_fsts(sentence_ids = [0],
         out_base = "../dummydata/blackdog-phrase-table", 
         grammar_base_fn = "../dummydata/blackdog", draw=True)
-    #H.generate_phrase_table_fsts(sentence_ids = [0],
-    #    out_base = "../dummydata/blackdog-phrase-table", 
-    #    grammar_base_fn = "../dummydata/blackdog", draw=False)
