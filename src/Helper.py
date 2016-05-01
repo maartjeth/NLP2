@@ -16,7 +16,7 @@ class Helper:
 		self.input_fst_base 		= "../data/inputs/input"
 		self.phrase_table_fst_base 	= "../data/phrase-tables/phrase-table"
 
-		self.OOV = "OOV2"
+		self.OOV = "OOV"
 
 
 	def get_sentences(self, sentences_fn=None):

@@ -63,3 +63,19 @@ Some (weird) terminology:
 
 * **base** refers to the path of a file, without (optional suffix) and extension. So the base of `/data/inputs/input-0.fst` is `/data/inputs/input`. So an FST has one base, but multiple files associated to it.
 * ...
+
+# Notes
+## OpenFST composition
+When you compose two FSTs that have mismatching in-out labels, weird things happen. More precisely, suppose you compose `FST1` (input) and `FST2` (phrase table):
+```
+    FST1: (0) ---[0:the]--- (1) ---[2:cat]--- (2)
+    FST2: (0) ---[the:le; foo:bar]--- (1)
+```
+Since `cat` is not an input label of `FST2`, it seems to ignore the label values, and only use the indices (as specified in the in- and out-symbols). That gives unexpected results.
+
+**Bottom line:** In any case, weird things happens if there is an input label in `FST2` that is *not* in `FST1`. In particular, when there is an `OOV:OOV` in the phrase table, but there is no `OOV` in the input sentence (and hence no `OOV` output label in `FST1`). This will in fact often happen in our setup, as we add the `OOV:OOV` rule to *every* grammar, even if there is no `OOV` in the input sentence.
+
+However, there is an easy fix: we only have to make sure that the output labels of the input FST are a *super set* of the input labels of the phrase table FST.  After preprocessing, we can assume that the phrase table is sufficient (i.e. actually covers the input sentence). So then we can just use the input symbols of the phrase table FST as the output symbols of the input FST. This might result in superfluous output labels for the input FST (e.g. a superflous `OOV` output symbol), but who cares?
+
+
+

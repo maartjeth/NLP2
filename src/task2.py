@@ -115,7 +115,7 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
         fst.update_fst(fst_txt)
         fst.update_isymbols(isymbols_txt)
         fst.update_osymbols(osymbols_txt)
-        fst.compile().sort()
+        fst.compile()
 
         # Drawing large FST's can take a very long time!
         if draw: fst.draw()
@@ -131,3 +131,6 @@ if __name__ == '__main__':
     H.generate_phrase_table_fsts(sentence_ids = [0],
         out_base = "../dummydata/blackdog-phrase-table", 
         grammar_base_fn = "../dummydata/blackdog", draw=True)
+    #H.generate_phrase_table_fsts(sentence_ids = [0],
+    #    out_base = "../dummydata/blackdog-phrase-table", 
+    #    grammar_base_fn = "../dummydata/blackdog", draw=False)
