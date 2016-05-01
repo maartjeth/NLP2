@@ -8,7 +8,7 @@
 from Helper import *
 from FST import *
 
-def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
+def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input", draw=False):
     """
     Turns a list of sentences into intput transducers. These are
     all stored as .txtfst, .osyms, .isyms, .fst files.
@@ -40,7 +40,9 @@ def generate_input_fsts(self, sentences=None, out_base="../data/inputs/input"):
         fst.update_fst(fst_txt)
         fst.update_osymbols(osymbols_txt)
         fst.update_isymbols(isymbols_txt)
-        fst.compile().draw()
+        fst.compile()
+
+        if draw: fst.draw()
 
 # Turn this into a class method
 Helper.generate_input_fsts = generate_input_fsts
@@ -48,4 +50,4 @@ Helper.generate_input_fsts = generate_input_fsts
 if __name__ == "__main__" or True:
     H = Helper()
     # H.generate_input_fsts()
-    H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/blackdog-input")
+    H.generate_input_fsts(sentences=['the black dog'], out_base="../dummydata/blackdog-input", draw=True)
