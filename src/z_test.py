@@ -1,19 +1,13 @@
-sentence = "The black dog"
-line_num = "test"
-outdir = "../data/inputs/"
+from Helper import *
+from FST import *
+H = Helper()
 
-fstfile = open(outdir + "input-%s.fst" % line_num, "w")
-osymfile = open(outdir + "input-%s.osyms" % line_num, "w")
-osymfile.write("<eps> 0\n")
+out = ""
+for i in range(H.num_sentences):
+	with open("%s.100best.%s.full" % (H.best_mono_derivations_base , i), "r") as f:
+		for i, l in enumerate(f):
+			if i < 1:
+				out += l.replace("\n","").split(" ||| ")[1] + "\n"
 
-words = sentence.split(" ")
-voc = set()
-for i, word in enumerate(words):
-    voc.add(word)
-    fstfile.write("%s %s %s %s 1\n" %(i, i+1, i, word))
-    
-for i, word in enumerate(voc):
-    osymfile.write(word + " " + str(i+1) + "\n")
-
-fstfile.close()
-osymfile.close()
+with open("../data/test.txt", "w") as f:
+	f.write(out)
