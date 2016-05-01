@@ -1,13 +1,12 @@
 from FST import *
-from 
 import subprocess
 
 fst = FST("../dummydata/short-path-fsts/example")
+fst = FST("../data/inputs/input-35")
 fst.compile()
-# fst.sort(how="ilabel")
 fst.draw()
 
-shortest = fst.find_n_best(5, "../dummydata/short-path-fsts/example-shortest")
+shortest = fst.find_n_best(5, "../data/inputs/input-35-shortest")
 shortest.draw()
 shortest.decompile()
 
