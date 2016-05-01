@@ -119,10 +119,13 @@ def generate_best_derivations_fsts(self, n=100):
 
 		# Save to file
 		out_fn = "%s.100best.%s" % (self.best_mono_derivations_base, i)
+		full_out_fn = "%s.100best.%s.full" % (self.best_mono_derivations_base, i)
 		translations = get_path_translations(best_derivations_fst.txtfst_fn)
 		with open(out_fn, "w") as out_f:
-			for trans, deriv, w in translations:
-				out_f.write(deriv +"\n")
+			with open(full_out_fn, "w") as full_out_f:
+				for i, (trans, deriv, w) in enumerate(translations):
+					out_f.write(deriv +"\n")
+					full_out_f.write("%s ||| %s ||| %s ||| %s\n" % (i, trans, deriv, w))
 
 # Add as method to Helper
 Helper.generate_best_derivations_fsts = generate_best_derivations_fsts
@@ -158,29 +161,29 @@ Helper.generate_mono_translation_fsts = generate_mono_translation_fsts
 
 if __name__ == '__main__':
 	# Do do the whole thing
-	# H = Helper()
+	H = Helper()
 	# H.generate_mono_translation_fsts()
-	# H.generate_best_derivations_fsts()
+	H.generate_best_derivations_fsts()
 	
 	# Generate composition: translation
-	input_fst = FST("../dummydata/blackdog-input-0")
-	phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
-	input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
-	input_fst.compile()
+	# input_fst = FST("../dummydata/blackdog-input-0")
+	# phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
+	# input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
+	# input_fst.compile()
 
-	translation = input_fst.compose(phrase_table_fst, "../dummydata/blackdog-translation-0")
-	# translation = FST("../dummydata/blackdog-translation-0")
-	translation.isymbols_fn = "../dummydata/blackdog-input-0.isyms"
-	translation.osymbols_fn = "../dummydata/blackdog-phrase-table-0.osyms"
-	translation.compile().draw()
+	# translation = input_fst.compose(phrase_table_fst, "../dummydata/blackdog-translation-0")
+	# # translation = FST("../dummydata/blackdog-translation-0")
+	# translation.isymbols_fn = "../dummydata/blackdog-input-0.isyms"
+	# translation.osymbols_fn = "../dummydata/blackdog-phrase-table-0.osyms"
+	# translation.compile().draw()
 
-	# Get best derivations
-	best_derivation_fst = translation.find_n_best(5, "../dummydata/blackdog-translation-best")
-	best_derivation_fst.decompile()
-	best_derivation_fst.copy_symbols()
-	best_derivation_fst.draw()
+	# # Get best derivations
+	# best_derivation_fst = translation.find_n_best(5, "../dummydata/blackdog-translation-best")
+	# best_derivation_fst.decompile()
+	# best_derivation_fst.copy_symbols()
+	# best_derivation_fst.draw()
 
-	# Print best translations
-	translations = get_path_translations(best_derivation_fst.txtfst_fn)
-	for trans, deriv, weight in translations:
-		print trans, "\t\t", deriv, "\t\t", weight
+	# # Print best translations
+	# translations = get_path_translations(best_derivation_fst.txtfst_fn)
+	# for trans, deriv, weight in translations:
+	# 	print trans, "\t\t", deriv, "\t\t", weight
