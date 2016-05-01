@@ -9,7 +9,7 @@ In this task the English source sentences are converted into transducers. These 
 
 Word-positions are one- rather than zero-based. The label index 0 always corresponds to the empty word `<eps>`. This avoids confusion when for example generating n-shortest-paths FSTs, where empty, initial segments are labeled `0:0` by OpenFST.
 
-* `data/1-inputs/`
+* **Output dir:** `data/1-inputs/`
     * `input-i.*`: the input FST (`*` can be *txtfst, fst, isyms, osyms*)
 
 ## Task 2: phrase table transducers.
@@ -17,7 +17,7 @@ Here the phrase tables as given in `grammar.i` are turned into transducers. Firs
 
 The weights of the connections are determined using a log-linear model, whose feature weights have already been trained (see `weights.monotone`).
 
-* Output dir:** `data/2-phrase-tables/`
+* **Output dir:** `data/2-phrase-tables/`
     * `phrase-table-i.*`
 
 ## Task 3: monotone translation.
