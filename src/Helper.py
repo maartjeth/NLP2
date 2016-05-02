@@ -7,20 +7,28 @@ class Helper:
 	that we use in all tasks.
 	"""
 
-	def __init__(self):
-		self.num_sentences = 100
+	def __init__(self, task5=False):
+
 
 		self.raw_sentences_fn 		= "../data/dev.en"
-		self.sentences_fn 			= "../data/dev-ooved.en"
-		self.grammar_base_fn 		= "../data/rules.monotone.dev/grammar"
-		self.sentences_fn 			= "../data/dev-ooved.en"
-		self.input_fst_base 		= "../data/1-inputs/input"
-		self.phrase_table_fst_base 	= "../data/2-phrase-tables/phrase-table"
+		self.sentences_fn 			= "../data/dev-ooved.en"		
+		self.sentences_fn 			= "../data/dev-ooved.en"		
 		self.mono_translation_fst_base 	= "../data/3-mono-translations/mono-translation"
 		self.best_mono_derivation_fst_base 	= "../data/4-best-mono-derivations/mono-translation"
 		self.best_mono_derivations_base 	= "../data/4-best-mono-derivations/monotone"
-
 		self.OOV = "OOV"
+
+		# difference between task 5 and the rest:
+		if task5 == True:
+			self.input_fst_base 		= "../data/5-inputs/input"
+			self.phrase_table_fst_base 	= "../data/5-phrase-tables/phrase-table"	
+			self.grammar_base_fn 		= "../data/rules.n-best.dev/grammar"	
+
+		else:
+			self.num_sentences = 100
+			self.input_fst_base 		= "../data/1-inputs/input"
+			self.phrase_table_fst_base 	= "../data/2-phrase-tables/phrase-table"
+			self.grammar_base_fn 		= "../data/rules.monotone.dev/grammar"
 
 
 	def get_sentences(self, sentences_fn=None):
