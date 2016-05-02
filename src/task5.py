@@ -41,7 +41,6 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 	"""
 
 	for perm_num, perm_vals in perm_dict.iteritems():
-		# use perm (= number of the permuted sentence) to store the file later on
 
 		# build fst per permuted sentence
 		fst = FST("%s-%s" % (out_base, perm_num))
