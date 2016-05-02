@@ -10,9 +10,10 @@
 # + add new weights!
 
 from Helper import *
+from FST import *
 from collections import defaultdict
 
-def generate_perm_input(self, permutations, draw=False):
+def generate_perm_input(self, permutations):
 	""" Turns the text into a dict that can be used to generate the permutation lattice
 		Permutation lattice: look at fig 6 of assignment 
 	"""
@@ -22,7 +23,7 @@ def generate_perm_input(self, permutations, draw=False):
 	with open(permutations, 'r') as f:
 		permutations = f.read().split("\n")
 
-		for perm in permutations[0:2]: # [0:2] for testing purposes
+		for perm in permutations[0:5]: # [0:2] for testing purposes
 			permutation = perm.split(' ||| ')
 
 			perm_num = permutation[0]
@@ -40,18 +41,23 @@ def generate_perm_input(self, permutations, draw=False):
 
 	return perm_dict
 
-def generate_perm_input_fsts(self, perm_dict):
+def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 	""" Generate input fst (input as it's used as input for task 6 later on)
 	"""
 
-	for perm_nums, perm_vals in perm_dict.iteritems():
+	for perm_num, perm_vals in perm_dict.iteritems():
 		# use perm (= number of the permuted sentence) to store the file later on
 
 		# build fst per permuted sentence
+		fst = FST("%s-%s" % (out_base, perm_num))
+
 		fst_txt = ""
+		isyms = set()
+		osyms = set()
 		isymbols_txt = "<eps> 0\n"
 		osymbols_txt = "<eps> 0\n"
 		state = 0
+
 		for p in perm_vals: # loop over all permutations per sentence
 
 			prob = p[0]
@@ -61,17 +67,41 @@ def generate_perm_input_fsts(self, perm_dict):
 			# TODO: check whether this works with the count the states get etc
 			weight = 1
 			for i, inp in enumerate(input_pos):
-				state += 1
 				if i == 0:
-					fst_txt += "%s %s %s %s %s\n" % (1, state, inp, output_words[i], weight)
+					fst_txt += "%s %s %s %s %s\n" % (0, state+1, inp, output_words[i], weight)
 				else:
 					fst_txt += "%s %s %s %s %s\n" % (state, state+1, inp, output_words[i], weight)
 
+				isyms.add(inp)
+				osyms.add(output_words[i])
+				state += 1
 
 			# print prob
 			# print input_pos
 			# print output_words
-			print fst_txt
+
+		# Add final node TODO: recognizes final node?????
+			fst_txt += "%s \n" % (state)
+
+
+		for i, word in enumerate(osyms):
+			osymbols_txt += "%s %s\n" % (word, i+1)
+
+		for i, word in enumerate(isyms):
+			isymbols_txt += "%s %s\n" % (word, i+1)
+
+		# Update fst and compile
+		fst.update_fst(fst_txt)
+		fst.update_osymbols(osymbols_txt)
+		fst.update_isymbols(isymbols_txt)
+		fst.compile()
+
+		if draw: fst.draw()
+
+		print fst_txt
+
+
+		# save fst files in this loop
 
 
 
@@ -82,5 +112,6 @@ Helper.generate_perm_input_fsts = generate_perm_input_fsts
 if __name__ == '__main__':
 	H = Helper()
 	permutation_file = "../data/dev.enpp.nbest"
+	out_base = "../data/5-permutation-lattices/perm-lat"
 	perm_dict = H.generate_perm_input(permutation_file)
-	H.generate_perm_input_fsts(perm_dict)
+	H.generate_perm_input_fsts(perm_dict, out_base, draw=True)
