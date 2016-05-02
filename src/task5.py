@@ -12,6 +12,7 @@
 from Helper import *
 from FST import *
 from collections import defaultdict
+import math
 
 def generate_perm_input(self, permutations):
 	""" Turns the text into a dict that can be used to generate the permutation lattice
@@ -23,7 +24,7 @@ def generate_perm_input(self, permutations):
 	with open(permutations, 'r') as f:
 		permutations = f.read().split("\n")
 
-		for perm in permutations[0:5]: # [0:2] for testing purposes
+		for perm in permutations[0:5]: # [0:something] for testing purposes
 			permutation = perm.split(' ||| ')
 
 			perm_num = permutation[0]
@@ -32,12 +33,6 @@ def generate_perm_input(self, permutations):
 			perm_output = permutation[3]
 
 			perm_dict[perm_num].append((prob, perm_input, perm_output)) # we're adding triples of strings
-
-			# print perm_num
-			# print prob
-			# print perm_input
-			# print perm_output
-			# print perm_dict
 
 	return perm_dict
 
@@ -58,29 +53,25 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 		osymbols_txt = "<eps> 0\n"
 		state = 0
 
-		for p in perm_vals: # loop over all permutations per sentence
+		# loop over all permutations per sentence
+		for p in perm_vals: 
 
-			prob = p[0]
+			prob = -math.log(float(p[0]))
 			input_pos = p[1].split(" ")
 			output_words = p[2].split(" ")
 
-			# TODO: check whether this works with the count the states get etc
-			weight = 1
 			for i, inp in enumerate(input_pos):
 				if i == 0:
-					fst_txt += "%s %s %s %s %s\n" % (0, state+1, inp, output_words[i], weight)
+					fst_txt += "%s %s %s %s \n" % (0, state+1, inp, output_words[i])
+				elif i == len(input_pos)-1: # add the weights only to the last arc
+					fst_txt += "%s %s %s %s %s \n" % (state, state+1, inp, output_words[i], prob)
 				else:
-					fst_txt += "%s %s %s %s %s\n" % (state, state+1, inp, output_words[i], weight)
+					fst_txt += "%s %s %s %s \n" % (state, state+1, inp, output_words[i])
 
 				isyms.add(inp)
 				osyms.add(output_words[i])
 				state += 1
 
-			# print prob
-			# print input_pos
-			# print output_words
-
-		# Add final node TODO: recognizes final node?????
 			fst_txt += "%s \n" % (state)
 
 
@@ -97,12 +88,6 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 		fst.compile()
 
 		if draw: fst.draw()
-
-		print fst_txt
-
-
-		# save fst files in this loop
-
 
 
 # Turn this method into a class method
