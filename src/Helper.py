@@ -20,7 +20,7 @@ class Helper:
 
 		# difference between task 5 and the rest:
 		if task6 == True:
-			self.input_fst_base 		= "../data/5-inputs/input"
+			self.input_fst_base 		= "../data/5-permutation-lattices/perm-lat"
 			self.phrase_table_fst_base 	= "../data/5-phrase-tables/phrase-table"	
 			self.grammar_base_fn 		= "../data/rules.n-best.dev/grammar"	
 			self.weight_file			= "../data/weights.lattice"

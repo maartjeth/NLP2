@@ -106,7 +106,7 @@ def get_path_translations(txtfst_fn):
 
 	return translations
 
-def generate_best_derivations_fsts(self, n=100):
+def generate_best_derivations_fsts(self, n=100, task6=False):
 	"""
 	Get the best n derivations from a given FST
 	"""
@@ -118,8 +118,12 @@ def generate_best_derivations_fsts(self, n=100):
 		best_derivations_fst.copy_symbols()
 
 		# Save to file
-		out_fn = "%s.100best.%s" % (self.best_mono_derivations_base, i)
-		full_out_fn = "%s.100best.%s.full" % (self.best_mono_derivations_base, i)
+		if task6 == True:
+			out_fn = "%s.100best-lattice.%s" % (self.best_mono_derivations_base, i)
+			full_out_fn = "%s.100best-lattice.%s.full" % (self.best_mono_derivations_base, i)
+		else:
+			out_fn = "%s.100best.%s" % (self.best_mono_derivations_base, i)
+			full_out_fn = "%s.100best.%s.full" % (self.best_mono_derivations_base, i)
 		translations = get_path_translations(best_derivations_fst.txtfst_fn)
 		with open(out_fn, "w") as out_f:
 			with open(full_out_fn, "w") as full_out_f:
