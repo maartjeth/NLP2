@@ -19,13 +19,16 @@ def get_feature_weights(self):
     try: 
         return self.feature_weights
     except AttributeError:
-        weight_file = "../data/weights.monotone"
-        with open(weight_file, "r") as f:
+        #weight_file = "../data/weights.monotone"
+        with open(self.weight_file, "r") as f:
             w_lines = f.read().split("\n")
             feature_weights = []
             for line in w_lines:
-                key, val = line.split(" ")
-                feature_weights.append((key, float(val)))
+                if line == "":
+                    continue
+                else:
+                    key, val = line.split(" ")
+                    feature_weights.append((key, float(val)))
         self.feature_weights = dict(feature_weights)
     return self.feature_weights
 

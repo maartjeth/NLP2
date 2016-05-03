@@ -7,9 +7,9 @@ class Helper:
 	that we use in all tasks.
 	"""
 
-	def __init__(self, task5=False):
+	def __init__(self, task6=False):
 
-
+		self.num_sentences = 100
 		self.raw_sentences_fn 		= "../data/dev.en"
 		self.sentences_fn 			= "../data/dev-ooved.en"		
 		self.sentences_fn 			= "../data/dev-ooved.en"		
@@ -19,16 +19,18 @@ class Helper:
 		self.OOV = "OOV"
 
 		# difference between task 5 and the rest:
-		if task5 == True:
+		if task6 == True:
 			self.input_fst_base 		= "../data/5-inputs/input"
 			self.phrase_table_fst_base 	= "../data/5-phrase-tables/phrase-table"	
 			self.grammar_base_fn 		= "../data/rules.n-best.dev/grammar"	
+			self.weight_file			= "../data/weights.lattice"
+
 
 		else:
-			self.num_sentences = 100
 			self.input_fst_base 		= "../data/1-inputs/input"
 			self.phrase_table_fst_base 	= "../data/2-phrase-tables/phrase-table"
 			self.grammar_base_fn 		= "../data/rules.monotone.dev/grammar"
+			self.weight_file 			= "../data/weights.monotone"
 
 
 	def get_sentences(self, sentences_fn=None):
