@@ -13,3 +13,5 @@ if __name__ == '__main__':
 	H.generate_phrase_table_fsts()
 	H.generate_mono_translation_fsts() 
 	H.generate_best_derivations_fsts()
+
+	# TODO: still need the BLUE scores
