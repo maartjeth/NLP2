@@ -12,6 +12,6 @@ if __name__ == '__main__':
 	H = Helper(pre_ordered=True)
 	H.generate_phrase_table_fsts()
 	H.generate_mono_translation_fsts() 
-	H.generate_best_derivations_fsts()
+	H.generate_best_derivations_fsts(task6=True)
 
 	# TODO: still need the BLUE scores
