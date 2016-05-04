@@ -11,6 +11,7 @@
 
 from Helper import *
 from FST import *
+import task2
 from collections import defaultdict
 import math
 
@@ -44,18 +45,20 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 		isymbols_txt = "<eps> 0\n"
 		osymbols_txt = "<eps> 0\n"
 		state = 0
+		lattice_cost = self.get_feature_weights()['LatticeCost']
 
 		# loop over all permutations per sentence
 		for prob, perm_positions, perm_words in perm_vals: 
 
-			prob = -math.log(float(prob))
+			prob = -math.log(float(prob))*lattice_cost
 			perm_positions = perm_positions.split(" ")
 			perm_words = perm_words.split(" ")
+
 
 			for i, (pos, word) in enumerate(zip(perm_positions, perm_words)):
 				if i == 0:
 					fst_txt += "%s %s %s %s 0\n" % (0, state+1, pos, word)
-				elif i == len(perm_positions) - 1: # add the weights only to the last arc
+				elif i == len(perm_positions) - 1: # add the weights only to the last arc  # TODO: multiply by the " weight " of this feature
 					fst_txt += "%s %s %s %s %s \n" % (state, state+1, pos, word, prob)
 				else:
 					fst_txt += "%s %s %s %s 0\n" % (state, state+1, pos, word)
@@ -98,7 +101,7 @@ Helper.generate_perm_input = generate_perm_input
 Helper.generate_perm_input_fsts = generate_perm_input_fsts
 
 if __name__ == '__main__':
-	H = Helper()
+	H = Helper(task6=True)
 	permutation_file = "../data/dev.enpp.nbest"
 	out_base = "../data/5-permutation-lattices/perm-lat"
 	perm_dict = H.generate_perm_input(permutation_file)
