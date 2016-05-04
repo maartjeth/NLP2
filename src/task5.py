@@ -22,7 +22,7 @@ def generate_perm_input(self, permutations):
 	perm_dict = defaultdict(list)
 	with open(permutations, 'r') as f:
 		permutations = f.read().split("\n")
-		for perm in permutations[:30]: # [0:something] for testing purposes
+		for perm in permutations[:3]: # [0:something] for testing purposes
 			if perm == "": continue; 
 			sentence, stats, perm_positions, perm_words = perm.split(' ||| ') 
 			stats = dict([s.split("=") for s in stats.split(" ")])
@@ -78,7 +78,19 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 		fst.update_isymbols(isymbols_txt)
 		fst.compile()
 
-		if draw: fst.draw()
+		# Make deterministic version
+		det_base = "../data/5-permutation-lattices/5-determinized/determinized"
+		determinized_fst = FST("%s-%s" % (det_base, sentence))
+		determinized_fst.determinize(fst)
+
+		# Make minimised version
+		min_base = "../data/5-permutation-lattices/5-det-minimized/minimized"
+		minimized_fst = FST("%s-%s" % (min_base, sentence))
+		minimized_fst.minimize(determinized_fst)
+
+		if draw: fst.draw(), determinized_fst.draw(), minimized_fst.draw()
+
+		
 
 
 # Turn this method into a class method

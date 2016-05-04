@@ -162,6 +162,26 @@ class FST:
 		call = "cp %s %s; cp %s %s;" % (self.isymbols_fn, isyms_fn, self.osymbols_fn, osyms_fn)
 		subprocess.call([call], shell=True)
 
+	def determinize(self, non_determinized):
+		"""
+		Makes a DFST of an NFST
+		"""
+
+		call = "fstdeterminize %s %s" % (non_determinized.fst_fn, self.fst_fn)
+		subprocess.call([call], shell=True)
+		self.isymbols_fn = non_determinized.isymbols_fn
+		self.osymbols_fn = non_determinized.osymbols_fn
+
+	def minimize(self, non_minimized):
+		"""
+		Minimize an FST
+		"""
+
+		call = "fstminimize %s %s" % (non_minimized.fst_fn, self.fst_fn)
+		subprocess.call([call], shell=True)
+		self.isymbols_fn = non_minimized.isymbols_fn
+		self.osymbols_fn = non_minimized.osymbols_fn
+
 
 
 
