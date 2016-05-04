@@ -15,25 +15,28 @@ import task2
 from collections import defaultdict
 import math
 
-def generate_perm_input(self, permutations):
-	""" Turns the text into a dict that can be used to generate the permutation lattice
-		Permutation lattice: look at fig 6 of assignment 
+def parse_permutation_file(self, permutation_fn):
+	"""
+	Turns the text into a dict that can be used to generate the permutation lattice
+	Permutation lattice: look at fig 6 of assignment 
 	"""
 
 	perm_dict = defaultdict(list)
-	with open(permutations, 'r') as f:
+	with open(permutation_fn, 'r') as f:
 		permutations = f.read().split("\n")
 		for perm in permutations[:3]: # [0:something] for testing purposes
 			if perm == "": continue; 
 			sentence, stats, perm_positions, perm_words = perm.split(' ||| ') 
 			stats = dict([s.split("=") for s in stats.split(" ")])
-			perm_dict[sentence].append((stats['prob'], perm_positions, perm_words)) # we're adding triples of strings
+			perm_dict[sentence].append((float(stats['prob']), perm_positions, perm_words)) # we're adding triples of strings
 			
 	return perm_dict
 
-def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
-	""" Generate input fst (input as it's used as input for task 6 later on)
+def generate_input_lattices(self, perm_dict, out_base, draw=False):
 	"""
+	Generate input fst (input as it's used as input for task 6 later on)
+	"""
+	lattice_cost = self.get_feature_weights()['LatticeCost']
 
 	for sentence, perm_vals in perm_dict.iteritems():
 
@@ -45,23 +48,21 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 		isymbols_txt = "<eps> 0\n"
 		osymbols_txt = "<eps> 0\n"
 		state = 0
-		lattice_cost = self.get_feature_weights()['LatticeCost']
 
 		# loop over all permutations per sentence
 		for prob, perm_positions, perm_words in perm_vals: 
 
-			prob = -math.log(float(prob))*lattice_cost
+			prob = (- math.log(prob)) * lattice_cost
 			perm_positions = perm_positions.split(" ")
 			perm_words = perm_words.split(" ")
 
-
 			for i, (pos, word) in enumerate(zip(perm_positions, perm_words)):
 				if i == 0:
-					fst_txt += "%s %s %s %s 0\n" % (0, state+1, pos, word)
+					fst_txt += "%s %s %s %s\n" % (0, state+1, pos, word)
 				elif i == len(perm_positions) - 1: # add the weights only to the last arc  # TODO: multiply by the " weight " of this feature
 					fst_txt += "%s %s %s %s %s \n" % (state, state+1, pos, word, prob)
 				else:
-					fst_txt += "%s %s %s %s 0\n" % (state, state+1, pos, word)
+					fst_txt += "%s %s %s %s\n" % (state, state+1, pos, word)
 
 				isyms.add(pos)
 				osyms.add(word)
@@ -83,28 +84,39 @@ def generate_perm_input_fsts(self, perm_dict, out_base, draw=False):
 
 		# Make deterministic version
 		det_base = "../data/5-permutation-lattices/5-determinized/determinized"
-		determinized_fst = FST("%s-%s" % (det_base, sentence))
-		determinized_fst.determinize(fst)
+		det_base = "../dummydata/determinized"
+		fst.determinize()
+		fst.push()
+		fst.draw()
 
 		# Make minimised version
-		min_base = "../data/5-permutation-lattices/5-det-minimized/minimized"
-		minimized_fst = FST("%s-%s" % (min_base, sentence))
-		minimized_fst.minimize(determinized_fst)
+		# min_base = "../data/5-permutation-lattices/5-det-minimized/minimized"
+		min_base = "../dummydata/minimized"
+		minimized_fst = fst.minimize(min_base)
+		minimized_fst.draw()
+		# minimized_fst.decompile()
 
-		if draw: fst.draw(), determinized_fst.draw(), minimized_fst.draw()
+		# fst2 = FST(min_base+'-2')
+		# # fst2.isymbols_fn = fst.isymbols_fn
+		# # fst2.osymbols_fn = fst.osymbols_fn
+		# fst2.draw()
+
+		# if draw: fst.draw(), determinized_fst.draw(), minimized_fst.draw()
 
 		
 
-
 # Turn this method into a class method
-Helper.generate_perm_input = generate_perm_input
-Helper.generate_perm_input_fsts = generate_perm_input_fsts
+Helper.parse_permutation_file = parse_permutation_file
+Helper.generate_input_lattices = generate_input_lattices
 
 if __name__ == '__main__':
 	H = Helper(pre_ordered=True)
-	permutation_file = "../data/dev.enpp.nbest"
-	out_base = "../data/5-permutation-lattices/perm-lat"
-	perm_dict = H.generate_perm_input(permutation_file)
-	H.generate_perm_input_fsts(perm_dict, out_base, draw=True)
+	# permutation_file = "../data/dev.enpp.nbest"
+	# out_base = "../data/5-permutation-lattices/perm-lat"
+	# perm_dict = H.generate_perm_input(permutation_file)
+	# H.generate_perm_input_fsts(perm_dict, out_base, draw=True)
 
+	permutations = H.parse_permutation_file("../dummydata/blackdog.perm")
+	print permutations
+	H.generate_input_lattices(permutations, "../dummydata/input-lattice", draw=True)
 

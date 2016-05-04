@@ -162,26 +162,51 @@ class FST:
 		call = "cp %s %s; cp %s %s;" % (self.isymbols_fn, isyms_fn, self.osymbols_fn, osyms_fn)
 		subprocess.call([call], shell=True)
 
-	def determinize(self, non_determinized):
+	def determinize(self, new_fst_base=False, in_place=False):
 		"""
-		Makes a DFST of an NFST
+		Determinizes the current FST.
+		If new_fst_base is False, the current FST is updated
 		"""
+		if new_fst_base == False: return self.determinize(self.base, True)
 
-		call = "fstdeterminize %s %s" % (non_determinized.fst_fn, self.fst_fn)
+		call = "fstdeterminize %s %s.fst" % (self.fst_fn, new_fst_base)
 		subprocess.call([call], shell=True)
-		self.isymbols_fn = non_determinized.isymbols_fn
-		self.osymbols_fn = non_determinized.osymbols_fn
 
-	def minimize(self, non_minimized):
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
+
+	def push(self, new_fst_base=False, in_place=False):
+		"""
+		If new_fst_base is False, the current FST is updated
+		"""
+		if new_fst_base == False: return self.push(self.base, True)
+
+		call = "fstpush --push_weights=true %s %s.fst" % (self.fst_fn, new_fst_base)
+		subprocess.call([call], shell=True)
+
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
+
+	def minimize(self, new_fst_base=False, in_place=False):
 		"""
 		Minimize an FST
+		If new_fst_base is False, the current FST is updated
 		"""
+		if new_fst_base == False: return self.minimize(self.base, True)
 
-		call = "fstminimize %s %s" % (non_minimized.fst_fn, self.fst_fn)
+		call = "fstminimize %s %s.fst" % (self.fst_fn, new_fst_base)
 		subprocess.call([call], shell=True)
-		self.isymbols_fn = non_minimized.isymbols_fn
-		self.osymbols_fn = non_minimized.osymbols_fn
-
-
+		
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
 
 
