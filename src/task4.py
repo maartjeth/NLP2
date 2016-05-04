@@ -2,69 +2,80 @@
 from collections import defaultdict
 from Helper import *
 from scipy.misc import logsumexp
-import math
 
-def viterbi_best_translation(self):
-	out = ""
+def dump_translations(self):
+	"""
+	Write all translations for the two decision rules (Viterbi and MAP)
+	to two different files.
+	"""
+
+	viterbi_translations = ""
+	map_translations = ""
 	for i in range(self.num_sentences):
-		with open("%s.100best.%s.full" % (self.best_mono_derivations_base , i), "r") as f:
-			for i, l in enumerate(f):
-				if i < 1:
-					out += l.replace("\n","").split(" ||| ")[1] + "\n"
 		
-	with open("../data/4-best-trans-der/viterbi_best.txt", "w") as f:
-		f.write(out)
+		# File with the 100 best derivations
+		derivations_fn = "%s.100best.%s.full" % (self.best_mono_derivations_base , i)
+		
+		# Get the Viterbi translation; the best (highest) score
+		with open(derivations_fn, "r") as f:
+			for i, line in enumerate(f):
+				if i == 0:
+					_, trans, der, weight = line.split(" ||| ")
+					viterbi_translations += trans + "\n"
 
-def MAP_best_translation(self):
-	out_trans = ""
-	out_der = ""
-	
-	for i in range(self.num_sentences):
-		# store all translations to dict
-		trans_dict = defaultdict(list)
-		with open("%s.100best.%s.full" % (self.best_mono_derivations_base , i), "r") as f:
-			for i, l in enumerate(f):
-				parts = l.split(" ||| ")
-				trans = parts[1]
-				der = parts[2]
-				weight = parts[3]
-	
-				trans_dict[trans].append((weight, der))
+		# The MAP translation
+		map_trans, _ = get_MAP_translation(derivations_fn)
+		map_translations += map_trans + "\n"
 
-		# Compute largest weights 	return logsumexp([float(weight) for weight, _ in derivations])
-		weight = 0.0
-		max_weight = -float('inf')
-		best_trans = ""
-		best_der = ""
-		for trans, weight_der in trans_dict.iteritems():
-			for i in weight_der:
-				weight += math.exp(float(i[0]))
-			log_weight = math.log(weight)
-			if log_weight > max_weight:
-				max_weight = log_weight
-				best_trans = trans
-				best_der = i[1]
+	# Save
+	with open("../data/monotone-translations.map", "w") as f:
+		f.write(map_translations)
 
-		out_trans += best_trans + "\n"
-		out_der += best_der + "\n"
+	with open("../data/monotone-translations.viterbi", "w") as f:
+		f.write(viterbi_translations)
 
-	with open("../data/4-best-trans-der/MAP_best_trans.txt", "w") as f:
-		f.write(out_trans)
+Helper.dump_translations = dump_translations
 
-	with open("../data/4-best-trans-der/MAP_best_der.txt", "w") as f:
-		f.write(out_der)
+def get_MAP_translation(derivations_fn):
+	"""
+	Approximate the MAP translation from a file containing several derivations 
+	of a single sentence. The input file is supposed to be of the form
+	```
+	line number ||| translation ||| derivation ||| weight
+	```
+	Even though in fact, only `translation` and `weight` are needed. The weights
+	are treated as if they are joint probabilities `log(translation, derivation)`.
+	""" 
 
+	# store all translations to dict
+	deriv_dict = defaultdict(list)
+	with open(derivations_fn) as f:
+		for line in f:
+			if line == "": continue;
+			_, trans, der, weight = line.split(" ||| ")
+			deriv_dict[trans].append((weight, der))
 
+	max_prob = -float('inf')
+	best_trans = ""
+	for trans, derivations in deriv_dict.iteritems():
+		trans_prob = get_translation_prob(derivations);
+		if trans_prob > max_prob:
+			max_prob = trans_prob
+			best_trans = trans
 
+	return best_trans, max_prob
 
-Helper.viterbi_best_translation = viterbi_best_translation
-Helper.MAP_best_translation = MAP_best_translation
-
+def get_translation_prob(derivations):
+	"""
+	Get the translation probability (posterior) given a set of weighted derivations.
+	Interpreting weighs as log-probability, it calculates log( sum_w exp(w) )
+	"""
+	return logsumexp([float(weight) for weight, _ in derivations])
 
 
 if __name__ == '__main__':
-	#best_der = '../dummydata/blackdog-trans-der-weight'
-	#max_weight, best_trans, best_der = find_best_translations(best_der)
+	# best_der = '../dummydata/blackdog-trans-der-weight'
+	# print (find_best_translations(best_der))
 	H = Helper()
-	H.MAP_best_translation()
+	H.dump_translations()
 
