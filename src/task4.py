@@ -16,7 +16,8 @@ def viterbi_best_translation(self):
 		f.write(out)
 
 def MAP_best_translation(self):
-	out = ""
+	out_trans = ""
+	out_der = ""
 	
 	for i in range(self.num_sentences):
 		# store all translations to dict
@@ -44,10 +45,15 @@ def MAP_best_translation(self):
 				best_trans = trans
 				best_der = i[1]
 
-		out += best_trans + "\n"
+		out_trans += best_trans + "\n"
+		out_der += best_der + "\n"
 
-	with open("../data/4-best-trans-der/MAP_best.txt", "w") as f:
-		f.write(out)
+	with open("../data/4-best-trans-der/MAP_best_trans.txt", "w") as f:
+		f.write(out_trans)
+
+	with open("../data/4-best-trans-der/MAP_best_der.txt", "w") as f:
+		f.write(out_der)
+
 
 
 

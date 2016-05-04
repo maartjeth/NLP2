@@ -54,6 +54,8 @@ if __name__ == "__main__":
 		print "Task 4..."
 		print "Getting the Viterbi best translation..."
 		H.viterbi_best_translation()
+		print "Getting the MAP best translations..."
+		H.MAP_best_translation()
 
 	# From here on we switch to pre-ordered translation, so we need a new Helper object
 	H1 = Helper(pre_ordered=True)
