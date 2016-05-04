@@ -101,7 +101,7 @@ Helper.generate_perm_input = generate_perm_input
 Helper.generate_perm_input_fsts = generate_perm_input_fsts
 
 if __name__ == '__main__':
-	H = Helper(task6=True)
+	H = Helper(pre_ordered=True)
 	permutation_file = "../data/dev.enpp.nbest"
 	out_base = "../data/5-permutation-lattices/perm-lat"
 	perm_dict = H.generate_perm_input(permutation_file)

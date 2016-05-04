@@ -1,5 +1,6 @@
 # task 4
 from collections import defaultdict
+from Helper import *
 
 def find_best_translations(n_best_der):
 	"""
@@ -39,8 +40,20 @@ def find_best_translations(n_best_der):
 
 	return max_weight, best_trans, best_der
 
-def make_output_task4(max_weight, best_trans, best_der)
+def viterbi_best_translation(self):
+	out = ""
+	for i in range(self.num_sentences):
+		with open("%s.100best.%s.full" % (self.best_mono_derivations_base , i), "r") as f:
+			for i, l in enumerate(f):
+				if i < 1:
+					out += l.replace("\n","").split(" ||| ")[1] + "\n"
+		
+	with open("../data/4-best-trans-der/viterbi_best.txt", "w") as f:
+		f.write(out)
 
+#def make_output_task4(max_weight, best_trans, best_der)
+
+Helper.viterbi_best_translation = viterbi_best_translation
 
 if __name__ == '__main__':
 	best_der = '../dummydata/blackdog-trans-der-weight'

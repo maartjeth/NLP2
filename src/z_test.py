@@ -8,6 +8,7 @@ for i in range(H.num_sentences):
 		for i, l in enumerate(f):
 			if i < 1:
 				out += l.replace("\n","").split(" ||| ")[1] + "\n"
+#print out
 
 with open("../data/test.txt", "w") as f:
 	f.write(out)

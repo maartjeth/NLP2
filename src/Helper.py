@@ -7,7 +7,7 @@ class Helper:
 	that we use in all tasks.
 	"""
 
-	def __init__(self, task6=False):
+	def __init__(self, pre_ordered=False):
 
 		self.num_sentences = 100
 		self.raw_sentences_fn 		= "../data/dev.en"
@@ -19,7 +19,7 @@ class Helper:
 		self.OOV = "OOV"
 
 		# difference between task 5 and the rest:
-		if task6 == True:
+		if pre_ordered == True:
 			self.input_fst_base 		= "../data/5-permutation-lattices/perm-lat"
 			self.phrase_table_fst_base 	= "../data/5-phrase-tables/phrase-table"	
 			self.grammar_base_fn 		= "../data/rules.n-best.dev/grammar"	
