@@ -56,6 +56,7 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 	if num_sentences == None: num_sentences = self.num_sentences;
 	if fst_base == None: fst_base = self.input_fst_base
 
+	# Get permutations
 	perm_dict = self.parse_permutation_file();
 
 	lattice_cost = self.get_feature_weights()['LatticeCost']
@@ -93,6 +94,7 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 
 		for i, word in enumerate(osyms):
 			osymbols_txt += "%s %s\n" % (word, i+1)
+		# osymbols_txt += "OOV %s\n" % (i+2)
 
 		for i, word in enumerate(isyms):
 			isymbols_txt += "%s %s\n" % (word, i+1)
@@ -103,7 +105,7 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 		fst.update_isymbols(isymbols_txt)
 
 		# GO, GO, GO!
-		fst.compile().determinize().push().minimize()
+		fst.compile().determinize().push().minimize().decompile()
 
 		if draw: fst.draw()
 
@@ -114,13 +116,9 @@ Helper.generate_input_lattices = generate_input_lattices
 
 if __name__ == '__main__':
 	
+	# H = Helper(type="all-monotone")
+	# H.preprocess_oov() # Just to be sure? (The grammar changed, after all...)
+	# H.generate_input_lattices()
+
 	H = Helper(type="blackdog-lattice")
-
-	# # Just to be sure? (The grammar changed, after all...)
-	# H.preprocess_oov()
-
 	H.generate_input_lattices(draw=True)
-
-	# permutations = H.parse_permutation_file("../dummydata/blackdog.perm", 
-	# 	sentences_fn="../dummydata/blackdog.en")
-	# H.generate_input_lattices(permutations, "../dummydata/input-lattice", draw=True)

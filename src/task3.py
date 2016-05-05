@@ -105,7 +105,7 @@ def get_path_translations(txtfst_fn):
 
 	return translations
 
-def generate_best_derivations_fsts(self, n=100):
+def generate_best_derivations_fsts(self, n=100, draw=False):
 	"""
 	Get the best n derivations from a given FST
 	"""
@@ -115,6 +115,7 @@ def generate_best_derivations_fsts(self, n=100):
 		best_derivations_fst = fst.find_n_best(n, best_derivations_fn)
 		best_derivations_fst.decompile()
 		best_derivations_fst.copy_symbols()
+		if draw: best_derivations_fst.draw()
 
 		# Save to file
 		out_fn 		 = "%s.100best.%s" % (self.best_derivations_base, i)
@@ -147,9 +148,8 @@ def generate_translation_fsts(self, translation_fst_base=None, draw=False):
 		input_fst.compile()
 
 		# Generate translation SFT and copy in- and out-symbol files
+		phrase_table_fst.sort(how="ilabel").decompile()
 		translation = input_fst.compose(phrase_table_fst, "%s-%s" % (translation_fst_base, i))
-		# translation.osymbols_fn = phrase_table_fst.osymbols_fn
-		translation.decompile()
 		translation.copy_symbols()
 
 		if draw: translation.draw()
@@ -159,31 +159,11 @@ Helper.generate_translation_fsts = generate_translation_fsts
 Helper.generate_best_derivations_fsts = generate_best_derivations_fsts
 
 if __name__ == '__main__':
-	# Do do the whole thing
-	H = Helper()
-	H.generate_translation_fsts()
-	H.generate_best_derivations_fsts()
 	
-	# # Generate composition: translation
-	# input_fst = FST("../dummydata/blackdog-input-0")
-	# phrase_table_fst = FST("../dummydata/blackdog-phrase-table-0")
-	# input_fst.osymbols_fn = phrase_table_fst.isymbols_fn
-	# input_fst.compile()
+	# H = Helper(type="all-monotone")
+	# H.generate_translation_fsts()
+	# H.generate_best_derivations_fsts()
 
-	# translation = input_fst.compose(phrase_table_fst, "../dummydata/blackdog-translation-0")
-	# # translation = FST("../dummydata/blackdog-translation-0")
-	# translation.isymbols_fn = "../dummydata/blackdog-input-0.isyms"
-	# translation.osymbols_fn = "../dummydata/blackdog-phrase-table-0.osyms"
-	# translation.compile().draw()
-
-	# # Get best derivations
-	# best_derivation_fst = translation.find_n_best(5, "../dummydata/blackdog-translation-best")
-	# best_derivation_fst.decompile()
-	# best_derivation_fst.copy_symbols()
-	# best_derivation_fst.draw()
-
-	# # Print best translations
-	# translations = get_path_translations(best_derivation_fst.txtfst_fn)
-	# for i, (trans, deriv, weight) in enumerate(translations):
-	# 	# print trans, "\t\t", deriv, "\t\t", weight
-	# 	print "%s ||| %s ||| %s ||| %s" % (i, trans, deriv, weight)
+	H = Helper(type="blackdog-monotone")
+	H.generate_translation_fsts(draw=True)
+	H.generate_best_derivations_fsts(draw=True)

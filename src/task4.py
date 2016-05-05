@@ -75,8 +75,9 @@ def get_translation_prob(derivations):
 
 
 if __name__ == '__main__':
-	# best_der = '../dummydata/blackdog-trans-der-weight'
-	# print (find_best_translations(best_der))
-	H = Helper()
+	# H = Helper(type="all-monotone")
+	# H.dump_translations()
+
+	H = Helper(type="blackdog-monotone")
 	H.dump_translations()
 

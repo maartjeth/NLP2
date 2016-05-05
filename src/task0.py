@@ -44,5 +44,5 @@ def preprocess_oov(self, raw_sentences_fn=None,
 Helper.preprocess_oov = preprocess_oov
 
 if __name__ == '__main__':
-    H = Helper()
+    H = Helper(type="all-monotone")
     H.preprocess_oov('../data/dev.en')
