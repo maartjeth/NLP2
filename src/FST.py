@@ -74,6 +74,29 @@ class FST:
 		call = "fstarcsort --sort_type=%s %s %s" % (how, self.fst_fn, self.sorted_fst_fn)
 		subprocess.call([call], shell=True)
 		return self
+	
+	def sort2(self,  how="ilabel", new_fst_base=False, in_place=False):
+		"""
+		Sorts the FST and saves the file in a .sorted.fst file
+
+		Args:
+			override: override the `.fst` file?
+			how: either `ilabel` (default) or `olabel`
+		"""
+		print "sorting", new_fst_base
+		if new_fst_base == False: return self.sort(new_fst_base=self.base, in_place=True)
+
+		call = "fstarcsort --sort_type=%s %s %s" % (how, self.fst_fn, new_fst_base)
+		subprocess.call([call], shell=True)
+
+
+		if in_place: 
+			self.decompile()
+			return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
 
 	def draw(self, format="pdf"):
 		"""

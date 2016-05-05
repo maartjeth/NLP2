@@ -12,72 +12,59 @@ from task4 import *
 from task5 import *
 from task6 import *
 
-
-if __name__ == "__main__":
+def do_tasks(H, tasks=[0,1,2,3,4], draw=False, bleu=False):
+	print "\nStarting with Helper " + H.type
 	
-	# The tasks to perform
-	#tasks = [0, 1, 2, 3, 4, 5, 6]
-	tasks = [4]
-
-	# The helper with all parameters (these are the defaults, but repeated for clarity)
-	H = Helper()
-
 	# Task 0
 	if 0 in tasks:
-		print "Task 0..."
+		print "\tTask 0..."
 		H.preprocess_oov()
 		print "\tDone with task 0.\n"
 	
 	# Task 1
 	if 1 in tasks:
-		print "Task 1..."
-		H.generate_input_fsts()
+		print "\tTask 1..."
+		H.generate_input_fsts(draw=draw)
 		print "\tDone with task 1.\n"
 
 	# Task 2
 	if 2 in tasks:
-		print "Task 2..."
-		H.generate_phrase_table_fsts()
+		print "\tTask 2..."
+		H.generate_phrase_table_fsts(draw=draw)
 		print "\tDone with task 2.\n"
 
 	# Task 3
 	if 3 in tasks:
-		print "Task 3..."
+		print "\tTask 3..."
 		print "\tGenerating monotone translation FSTs..."
-		H.generate_translation_fsts()
+		H.generate_translation_fsts(draw=draw)
 		print "\tGenerating the best derivations in those monotone translations..."
-		H.generate_best_derivations_fsts()
+		H.generate_best_derivations_fsts(draw=draw)
 		print "\tDone with task 3.\n"
 
 	# Task 4
 	if 4 in tasks:
-		print "Task 4..."
-		print "Getting the Viterbi best translation..."
-		H.viterbi_best_translation()
-		print "Getting the MAP best translations..."
-		H.MAP_best_translation()
+		print "\tTask 4..."
+		H.dump_translations()
+		if bleu:
+			print H.dump_bleu_scores()
 
-	# From here on we switch to pre-ordered translation, so we need a new Helper object
-	H1 = Helper(pre_ordered=True)
+if __name__ == "__main__":
+	
+	# H = Helper("blackdog-monotone")
+	# do_tasks(H, draw=True)
 
-	# Task 5
-	if 5 in tasks:
-		print "Task 5..."
-		print "\tGenerating permutation lattices..."			
-		permutation_file = "../data/dev.enpp.nbest"
-		out_base = "../data/5-permutation-lattices/perm-lat"
-		perm_dict = H1.generate_perm_input(permutation_file)
-		H1.generate_perm_input_fsts(perm_dict, out_base)
-		print "\tDone with task 5."
+	# H = Helper("blackdog-lattice")
+	# do_tasks(H, draw=True)
 
-	if 6 in tasks:
-		print "Task 6..."
-		print "\tGenerating new fsts from pre-ordered phrase tables..."
-		H1.generate_phrase_table_fsts()
-		print "\tGenerate translation FSTs..."
-		H1.generate_mono_translation_fsts() 
-		print "\tGenerating the best derivations in those translations..."
-		H1.generate_best_derivations_fsts()
-		print "\tDone with task 6." 
+	# H = Helper("freundin-monotone")
+	# do_tasks(H, draw=True)
 
-	print "All tasks are done!"
+	# H = Helper("freundin-lattice")
+	# do_tasks(H, draw=True)
+
+	H = Helper("all-monotone")
+	do_tasks(H, draw=False, bleu=True)
+
+	# H = Helper("all-lattice")
+	# do_tasks(H, draw=False, bleu=True)

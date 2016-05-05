@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 class Helper:
 	"""
@@ -7,37 +8,120 @@ class Helper:
 	that we use in all tasks.
 	"""
 
-	def __init__(self, type="monotone"):
+	def __init__(self, type):
 
-		self.num_sentences 					= 100
-		self.raw_sentences_fn 				= "../data/dev.en"
-		# self.best_derivation_fst_base 	= "../data/4-best-mono-derivations/mono-translation"
-		# self.best_derivations_base 		= "../data/4-best-mono-derivations/monotone"
 		self.OOV = "OOV"
-
-		# difference between task 5 and the rest:
-		if type == "lattice":
-			self.sentences_fn 				= "../data/dev-ooved-lattice.en"
-			self.input_fst_base 			= "../data/5-input-lattices/input-lattice"
-			self.phrase_table_fst_base 		= "../data/5-phrase-tables/phrase-table"
-			self.translation_fst_base   	= "../data/6-lattice-translations/lattice-translation"	
-			self.best_derivation_fst_base 	= "../data/6-best-lattice-derivations/lattice-derivation"
-			self.best_derivations_base 		= "../data/6-best-lattice-derivations/lattice"
-			self.grammar_base_fn 			= "../data/rules.n-best.dev/grammar"	
-			self.weight_file				= "../data/weights.lattice"
-			self.translation_base 			= "../data/lattice-translations"
-
-		else:
-			self.sentences_fn 				= "../data/dev-ooved-mono.en"
-			self.input_fst_base 			= "../data/1-inputs/input"
-			self.phrase_table_fst_base 		= "../data/2-phrase-tables/phrase-table"
-			self.translation_fst_base 		= "../data/3-mono-translations/mono-translation"
-			# FIX NAME:
-			self.best_derivation_fst_base 	= "../data/4-best-mono-derivations/mono-translation"
-			self.best_derivations_base 		= "../data/4-best-mono-derivations/monotone"
+		directories = []
+		self.type = type
+		
+		if type == "all-monotone":
+			root = "../results/"
+			self.num_sentences 				= 100
+			self.raw_sentences_fn 			= "../data/dev.en"
+			self.sentences_fn 				= root + "dev-ooved-mono.en"
+			self.input_fst_base 			= root + "mono-inputs/mono-input"
+			self.phrase_table_fst_base 		= root + "mono-phrase-tables/mono-phrase-table"
+			self.translation_fst_base 		= root + "mono-translations/mono-translation"
+			self.best_derivation_fst_base 	= root + "mono-derivations/mono-derivation"
+			self.best_derivations_base 		= root + "mono-best-derivations/monotone"
 			self.grammar_base_fn 			= "../data/rules.monotone.dev/grammar"
 			self.weight_file 				= "../data/weights.monotone"
-			self.translation_base 			= "../data/monotone-translations"
+			self.translation_base 			= root + "monotone-translations"
+			self.blue_scores_fn 			= root + "mono-bleu-scores.txt"
+			directories						= [root, "mono-inputs", "mono-phrase-tables", 
+												"mono-translations", "mono-derivations", 
+												"mono-best-derivations"]
+			directories = [root + d for d in directories]
+
+		elif type == "all-lattice":
+			root = "../results/"
+			self.num_sentences 				= 100
+			self.raw_sentences_fn 			= "../data/dev.en"
+			self.sentences_fn 				= root + "dev-ooved-lattice.en"
+			self.input_fst_base 			= root + "lat-inputs/lat-input"
+			self.phrase_table_fst_base 		= root + "lat-phrase-tables/lat-phrase-table"
+			self.translation_fst_base   	= root + "lat-translations/lat-translation"	
+			self.best_derivation_fst_base 	= root + "lat-derivations/lat-derivation"
+			self.best_derivations_base 		= root + "lat-best-derivations/lattice"
+			self.grammar_base_fn 			= "../data/rules.n-best.dev/grammar"	
+			self.weight_file				= "../data/weights.lattice"
+			self.translation_base 			= root + "lat-translations"
+			self.permutations_fn 			= root + "dev.enpp.nbest"
+			self.blue_scores_fn 			= root + "lat-bleu-scores.txt"
+			directories						= [root, "lat-inputs", "lat-phrase-tables", 
+												"lat-translations", "lat-derivations", 
+												"lat-best-derivations"]
+			directories = [root + d for d in directories]
+
+
+		elif type == "blackdog-monotone":
+			root = "../dummydata/blackdog-monotone/"
+			self.num_sentences				= 1
+			self.raw_sentences_fn 			= "../dummydata/blackdog.raw.en"
+			self.sentences_fn 				= "../dummydata/blackdog.en"
+			self.input_fst_base 			= root + "input"
+			self.phrase_table_fst_base 		= root + "phrase-table"
+			self.translation_fst_base   	= root + "translation"	
+			self.best_derivation_fst_base 	= root + "derivation"
+			self.best_derivations_base 		= root + "best-derivations"
+			self.grammar_base_fn 			= "../dummydata/blackdog"	
+			self.weight_file				= "../data/weights.monotone"
+			self.translation_base 			= "../dummydata/blackdog-monotone-translations"
+			self.permutations_fn 			= "../dummydata/blackdog.perm"
+			directories 					= [root]
+
+		elif type == "blackdog-lattice":
+			root = "../dummydata/blackdog-lattice/"
+			self.num_sentences				= 1
+			self.raw_sentences_fn 			= "../dummydata/blackdog.raw.en"
+			self.sentences_fn 				= "../dummydata/blackdog.en"
+			self.input_fst_base 			= root + "input"
+			self.phrase_table_fst_base 		= root + "phrase-table"
+			self.translation_fst_base   	= root + "translation"	
+			self.best_derivation_fst_base 	= root + "derivation"
+			self.best_derivations_base 		= root + "best-derivations"
+			self.grammar_base_fn 			= "../dummydata/blackdog"	
+			self.weight_file				= "../data/weights.lattice"
+			self.translation_base 			= "../dummydata/blackdog-lattice-translations"
+			self.permutations_fn 			= "../dummydata/blackdog.perm"
+			directories 					= [root] 
+
+		elif type == "freundin-monotone":
+			root = "../dummydata/freundin-monotone/"
+			self.num_sentences				= 1
+			self.raw_sentences_fn 			= "../dummydata/freundin.raw.en"
+			self.sentences_fn 				= "../dummydata/freundin.en"
+			self.input_fst_base 			= root + "input"
+			self.phrase_table_fst_base 		= root + "phrase-table"
+			self.translation_fst_base   	= root + "translation"	
+			self.best_derivation_fst_base 	= root + "derivation"
+			self.best_derivations_base 		= root + "blackdog-monotone"
+			self.grammar_base_fn 			= "../dummydata/freundin"	
+			self.weight_file				= "../data/weights.monotone"
+			self.translation_base 			= "../dummydata/freundin-monotone-translations"
+			self.permutations_fn 			= "../dummydata/freundin.perm"
+			directories 					= [root]
+
+		elif type == "freundin-lattice":
+			root = "../dummydata/freundin-lattice/"
+			self.num_sentences				= 1
+			self.raw_sentences_fn 			= "../dummydata/freundin.raw.en"
+			self.sentences_fn 				= "../dummydata/freundin.en"
+			self.input_fst_base 			= root + "input"
+			self.phrase_table_fst_base 		= root + "phrase-table"
+			self.translation_fst_base   	= root + "translation"	
+			self.best_derivation_fst_base 	= root + "derivation"
+			self.best_derivations_base 		= root + "blackdog-monotone"
+			self.grammar_base_fn 			= "../dummydata/freundin"	
+			self.weight_file				= "../data/weights.monotone"
+			self.translation_base 			= "../dummydata/freundin-lattice-translations"
+			self.permutations_fn 			= "../dummydata/freundin.perm"
+			directories 					= [root]
+	
+		# Create missing directories
+		for directory in directories:
+			if not os.path.isdir(directory):
+				os.makedirs(directory)
 
 
 	def get_sentences(self, sentences_fn=None):
@@ -58,4 +142,26 @@ class Helper:
 			grammar = f.read().split("\n") # set dummy features to 0
 			grammar.append('[X] ||| %s ||| %s ||| EgivenFCoherent=0 SampleCountF=0 CountEF=0 MaxLexFgivenE=0 MaxLexEgivenF=0 IsSingletonF=0' % (self.OOV, self.OOV))
 		return [rule for rule in grammar if rule != ""]
+
+	def dump_bleu_scores(self):
+		"""
+		Writes the bleu scores to a file.
+		"""
+		out = "BLEU SCORES for '%s'\n\n" % self.type
+		for method in ["viterbi", "map"]:
+			out += "\tMethod: %s \n" % method
+
+			call = "../data/./multi-bleu.perl ../data/dev.ja < %s.%s > __tmp.txt" % (self.translation_base, method)
+			subprocess.call([call], shell=True)
+
+			with open("__tmp.txt", "r") as f:
+				out += "\t%s\n" % f.read()
+			os.remove("__tmp.txt")
+		
+		with open(self.blue_scores_fn, "w") as f:
+			f.write(out)
+
+		return out
+
+
     
