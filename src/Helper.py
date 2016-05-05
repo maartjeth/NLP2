@@ -32,6 +32,7 @@ class Helper:
 												"mono-translations", "mono-derivations", 
 												"mono-best-derivations"]
 			directories = [root + d for d in directories]
+			print "directories: ", directories
 
 		elif type == "all-lattice":
 			root = "../results/"

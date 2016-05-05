@@ -116,9 +116,9 @@ Helper.generate_input_lattices = generate_input_lattices
 
 if __name__ == '__main__':
 	
-	# H = Helper(type="all-monotone")
-	# H.preprocess_oov() # Just to be sure? (The grammar changed, after all...)
-	# H.generate_input_lattices()
+	H = Helper(type="all-lattice")
+	H.preprocess_oov() # Just to be sure? (The grammar changed, after all...)
+	H.generate_input_lattices()
 
-	H = Helper(type="blackdog-lattice")
-	H.generate_input_lattices(draw=True)
+	# H = Helper(type="blackdog-lattice")
+	# H.generate_input_lattices(draw=True)

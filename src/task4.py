@@ -29,9 +29,11 @@ def dump_translations(self):
 
 	# Save
 	with open(self.translation_base + ".map", "w") as f:
+		print self.translation_base
 		f.write(map_translations)
 
 	with open(self.translation_base + ".viterbi", "w") as f:
+		print self.translation_base
 		f.write(viterbi_translations)
 
 Helper.dump_translations = dump_translations
@@ -70,7 +72,7 @@ def get_translation_prob(derivations):
 	Get the translation probability (posterior) given a set of weighted derivations.
 	Interpreting weighs as log-probability, it calculates log( sum_w exp(w) )
 	"""
-	# return sum([float(weight) for weight, _ in derivations])
+	#return sum([float(weight) for weight, _ in derivations])
 	return logsumexp([float(weight) for weight, _ in derivations])
 
 

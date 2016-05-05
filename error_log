@@ -1,0 +1,38 @@
+LOG
+
+START BLUE SCORES: 	16.76 	|| 15.81
+					Viterbi || MAP
+
+Mogelijkheden van het probleem
+
+1) 	Task 5 - verkeerde input --> Verkeerde mapping, determinization, minimization, push
+	
+	Dit is het niet. Goed de graphs doorgekeken. Zijn allemaal goed (black dog). Gewichten worden ook goed gepusht (aangenomen dat de gewichten aan het begin goed waren (= optie 2))
+	Gerund zonder determinziation and minimization, geeft zelfs iets lagere scores (dat is misschien wel gek, zou niet uit hoeven maken?)
+
+	BLUE: 15.81 || 15.75
+
+	But I do get different results when I run again: BLUE: 16.77 || 15.75
+
+	Note: zonder determinization and minimization lijkt het inderdaad langer te duren
+
+	Ik had het ook nog een keer zonder OOV mapping gerund: BLUE: 7.08 || 15.21
+
+2) 	Verkeerde gewichten
+	
+	math.log() = ln --> dat is ook wat we moeten gebruiken, dus dat gaat goed
+
+	Is het wel goed dat we de gewichten gewoon zomaar optellen?
+	Je wilt dat er per phrase regel in je grammar een prob*lattice_cost wordt opgeteld bij de features van de phrase table die je al had.
+	....
+
+3) 	Verkeerde MAP berekening
+
+	Berekening met sum ipv logsumexp: 
+	BLUE: 16.76 || 15.61
+
+	Dus dat wordt ook lager op deze manier
+
+4)	Overigen..
+	Vertaling gaat de goede kant op
+

@@ -1,6 +1,16 @@
-le |1-1| chien noir |2-3|
-un |1-1| chien noir |2-3|
-le |1-1| noirs |2-2| chien |3-3|
-un |1-1| noir |2-2| chien |3-3|
-le |1-1| noir |2-2| chien |3-3|
-un |1-1| noirs |2-2| chien |3-3|
+chien noir |1-2| le |0-0|
+chien noir |1-2| un |0-0|
+le |0-0| chien noir |1-2|
+un |0-0| chien noir |1-2|
+un |0-0| chien |2-2| noir |1-1|
+un |0-0| chien |2-2| noirs |1-1|
+le |0-0| chien |2-2| noir |1-1|
+le |0-0| chien |2-2| noirs |1-1|
+noir |1-1| chien |2-2| un |0-0|
+noirs |1-1| chien |2-2| un |0-0|
+noir |1-1| chien |2-2| le |0-0|
+noirs |1-1| chien |2-2| le |0-0|
+le |0-0| noir |1-1| chien |2-2|
+un |0-0| noirs |1-1| chien |2-2|
+le |0-0| noirs |1-1| chien |2-2|
+un |0-0| noir |1-1| chien |2-2|
