@@ -126,7 +126,7 @@ def generate_best_derivations_fsts(self, n=100):
 					out_f.write(deriv +"\n")
 					full_out_f.write("%s ||| %s ||| %s ||| %s\n" % (i, trans, deriv, w))
 
-def generate_translation_fsts(self, translation_fst_base=None):
+def generate_translation_fsts(self, translation_fst_base=None, draw=False):
 	"""
 	Generates translation FSTs from input and phrase table FSTs. 
 	The translation is then simply the composition of the two.
@@ -148,8 +148,11 @@ def generate_translation_fsts(self, translation_fst_base=None):
 
 		# Generate translation SFT and copy in- and out-symbol files
 		translation = input_fst.compose(phrase_table_fst, "%s-%s" % (translation_fst_base, i))
+		# translation.osymbols_fn = phrase_table_fst.osymbols_fn
 		translation.decompile()
 		translation.copy_symbols()
+
+		if draw: translation.draw()
 
 # Add Helper methods
 Helper.generate_translation_fsts = generate_translation_fsts

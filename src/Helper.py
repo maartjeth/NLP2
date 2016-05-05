@@ -26,6 +26,20 @@ class Helper:
 			self.grammar_base_fn 			= "../data/rules.n-best.dev/grammar"	
 			self.weight_file				= "../data/weights.lattice"
 			self.translation_base 			= "../data/lattice-translations"
+			self.permutations_fn 			= "../data/dev.enpp.nbest"
+
+		elif type == "blackdog-lattice":
+			self.num_sentences				= 1
+			self.sentences_fn 				= "../dummydata/blackdog.en"
+			self.input_fst_base 			= "../dummydata/blackdog-input-lattice"
+			self.phrase_table_fst_base 		= "../dummydata/blackdog-phrase-table"
+			self.translation_fst_base   	= "../dummydata/blackdog-lattice-translation"	
+			self.best_derivation_fst_base 	= "../dummydata/blackdog-lattice-derivation"
+			self.best_derivations_base 		= "../dummydata/blackdog-lattice"
+			self.grammar_base_fn 			= "../dummydata/blackdog"	
+			self.weight_file				= "../data/weights.lattice"
+			self.translation_base 			= "../dummydata/blackdog-lattice-translations"
+			self.permutations_fn 			= "../dummydata/blackdog.perm"
 
 		else:
 			self.sentences_fn 				= "../data/dev-ooved-mono.en"
