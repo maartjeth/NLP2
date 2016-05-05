@@ -14,6 +14,7 @@ from FST import *
 import task2
 from collections import defaultdict
 import math
+import task0
 
 def parse_permutation_file(self, permutation_fn, num_sentences=None):
 	"""
@@ -22,15 +23,27 @@ def parse_permutation_file(self, permutation_fn, num_sentences=None):
 	"""
 	if num_sentences == None: num_sentences = self.num_sentences;
 
+	vocabularies = []
+	with open(self.sentences_fn, 'r') as f:
+		for sentence in f:
+			vocabularies.append( set(sentence[:-1].split(" ")) )
+
 	perm_dict = defaultdict(list)
 	with open(permutation_fn, 'r') as f:
 		permutations = f.read().split("\n")
-		for perm in permutations: # [0:something] for testing purposes
+		for perm in permutations:
 			if perm == "": continue; 
 			sentence, stats, perm_positions, perm_words = perm.split(' ||| ')
-			if int(sentence) > num_sentences: continue
+			if int(sentence) >= num_sentences: continue
+			
+			# Replace OOV words in the permutation
+			voc = vocabularies[int(sentence)]
+			replace_oov = lambda word: word if word in voc else self.OOV
+			perm_words = map(replace_oov, perm_words.split(" "))
+
+			perm_positions = perm_positions.split(" ")
 			stats = dict([s.split("=") for s in stats.split(" ")])
-			perm_dict[sentence].append((float(stats['prob']), perm_positions, perm_words)) # we're adding triples of strings
+			perm_dict[sentence].append((float(stats['prob']), perm_positions, perm_words))
 			
 	return perm_dict
 
@@ -55,8 +68,8 @@ def generate_input_lattices(self, perm_dict, out_base, draw=False, num_sentences
 		for prob, perm_positions, perm_words in perm_vals: 
 
 			prob = - math.log(prob) * lattice_cost
-			perm_positions = perm_positions.split(" ")
-			perm_words = perm_words.split(" ")
+			# perm_positions = perm_positions.split(" ")
+			# perm_words = perm_words.split(" ")
 
 			for i, (pos, word) in enumerate(zip(perm_positions, perm_words)):
 				if i == 0:
@@ -93,7 +106,12 @@ Helper.parse_permutation_file = parse_permutation_file
 Helper.generate_input_lattices = generate_input_lattices
 
 if __name__ == '__main__':
-	H = Helper(pre_ordered=True)
+	
+	H = Helper(type="lattice")
+
+	# Just to be sure? (The grammar changed, after all...)
+	H.preprocess_oov()
+
 	permutation_file = "../data/dev.enpp.nbest"
 	out_base = "../data/5-input-lattices/input-lattice"
 	perm_dict = H.parse_permutation_file(permutation_file)

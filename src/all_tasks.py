@@ -44,7 +44,7 @@ if __name__ == "__main__":
 	if 3 in tasks:
 		print "Task 3..."
 		print "\tGenerating monotone translation FSTs..."
-		H.generate_mono_translation_fsts()
+		H.generate_translation_fsts()
 		print "\tGenerating the best derivations in those monotone translations..."
 		H.generate_best_derivations_fsts()
 		print "\tDone with task 3.\n"
