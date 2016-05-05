@@ -11,7 +11,6 @@ import math
 from Helper import *
 from FST import *
 
-
 def get_feature_weights(self):
     """
     Gets a dictionary with feature weights
@@ -19,7 +18,6 @@ def get_feature_weights(self):
     try: 
         return self.feature_weights
     except AttributeError:
-        #weight_file = "../data/weights.monotone"
         with open(self.weight_file, "r") as f:
             w_lines = f.read().split("\n")
             feature_weights = []
@@ -31,10 +29,6 @@ def get_feature_weights(self):
                     feature_weights.append((key, float(val)))
         self.feature_weights = dict(feature_weights)
     return self.feature_weights
-
-# Add as method to Helper class
-Helper.get_feature_weights = get_feature_weights
-
 
 def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, out_base=None, draw=False):
     """
@@ -123,8 +117,9 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
         # Drawing large FST's can take a very long time!
         if draw: fst.draw()
   
-# Add as method to Helper class
+# Add methods to Helper class
 Helper.generate_phrase_table_fsts = generate_phrase_table_fsts
+Helper.get_feature_weights = get_feature_weights
 
 if __name__ == '__main__':
     H = Helper()

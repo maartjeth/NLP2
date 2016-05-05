@@ -14,7 +14,7 @@ def dump_translations(self):
 	for i in range(self.num_sentences):
 		
 		# File with the 100 best derivations
-		derivations_fn = "%s.100best.%s.full" % (self.best_mono_derivations_base , i)
+		derivations_fn = "%s.100best.%s.full" % (self.best_derivations_base , i)
 		
 		# Get the Viterbi translation; the best (highest) score
 		with open(derivations_fn, "r") as f:
@@ -28,10 +28,10 @@ def dump_translations(self):
 		map_translations += map_trans + "\n"
 
 	# Save
-	with open("../data/monotone-translations.map", "w") as f:
+	with open(self.translation_base + ".map", "w") as f:
 		f.write(map_translations)
 
-	with open("../data/monotone-translations.viterbi", "w") as f:
+	with open(self.translation_base + ".viterbi", "w") as f:
 		f.write(viterbi_translations)
 
 Helper.dump_translations = dump_translations
@@ -70,6 +70,7 @@ def get_translation_prob(derivations):
 	Get the translation probability (posterior) given a set of weighted derivations.
 	Interpreting weighs as log-probability, it calculates log( sum_w exp(w) )
 	"""
+	# return sum([float(weight) for weight, _ in derivations])
 	return logsumexp([float(weight) for weight, _ in derivations])
 
 

@@ -19,6 +19,9 @@ class FST:
 		self.osymbols_fn = self.base + '.osyms'
 		self.fst_fn = self.base + '.fst'
 
+		# The quantization delta of OpenFST
+		self.delta = 10**(-15);
+
 	def is_empty(self):
 		if os.path.isfile(self.txtfst_fn):
 			return os.stat(self.txtfst_fn).st_size == 0
@@ -102,7 +105,7 @@ class FST:
 		osyms = " --osymbols="+self.osymbols_fn if os.path.isfile(self.osymbols_fn) else "";
 		calls = [
 			"rm -f " + drawing,
-			"fstdraw%s%s %s %s" % (isyms, osyms, self.fst_fn, dot_fn),
+			"fstdraw%s%s --portrait=true %s %s" % (isyms, osyms, self.fst_fn, dot_fn),
 			"dot -T%s %s -o %s" % (format, dot_fn, drawing),
 			"rm " + dot_fn
 		]
@@ -145,7 +148,8 @@ class FST:
 		Finds the n-best paths in an fst
 		""" 
 
-		call = "fstshortestpath --nshortest=%s %s %s.fst" % (n, self.fst_fn, short_fst_base)
+		call = "fstshortestpath --nshortest=%s --delta=%s %s %s.fst" \
+				% (n, self.delta, self.fst_fn, short_fst_base)
 		subprocess.call([call], shell=True)
 
 		# TODO: are these really the correct isymbols and osymbols??
@@ -162,26 +166,54 @@ class FST:
 		call = "cp %s %s; cp %s %s;" % (self.isymbols_fn, isyms_fn, self.osymbols_fn, osyms_fn)
 		subprocess.call([call], shell=True)
 
-	def determinize(self, non_determinized):
+	def determinize(self, new_fst_base=False, in_place=False):
 		"""
-		Makes a DFST of an NFST
+		Determinizes the current FST.
+		If new_fst_base is False, the current FST is updated
 		"""
+		if new_fst_base == False: return self.determinize(self.base, True)
 
-		call = "fstdeterminize %s %s" % (non_determinized.fst_fn, self.fst_fn)
+		call = "fstdeterminize --delta=%s %s %s.fst" \
+				% (self.delta, self.fst_fn, new_fst_base)
 		subprocess.call([call], shell=True)
-		self.isymbols_fn = non_determinized.isymbols_fn
-		self.osymbols_fn = non_determinized.osymbols_fn
 
-	def minimize(self, non_minimized):
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
+
+	def push(self, new_fst_base=False, in_place=False):
+		"""
+		If new_fst_base is False, the current FST is updated
+		"""
+		if new_fst_base == False: return self.push(self.base, True)
+
+		call = "fstpush --push_weights=true --delta=%s %s %s.fst" \
+				% (self.delta, self.fst_fn, new_fst_base)
+		subprocess.call([call], shell=True)
+
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
+
+	def minimize(self, new_fst_base=False, in_place=False):
 		"""
 		Minimize an FST
+		If new_fst_base is False, the current FST is updated
 		"""
+		if new_fst_base == False: return self.minimize(self.base, True)
 
-		call = "fstminimize %s %s" % (non_minimized.fst_fn, self.fst_fn)
+		call = "fstminimize --delta=%s %s %s.fst" \
+				% (self.delta, self.fst_fn, new_fst_base)
 		subprocess.call([call], shell=True)
-		self.isymbols_fn = non_minimized.isymbols_fn
-		self.osymbols_fn = non_minimized.osymbols_fn
-
-
+		
+		if in_place: return self
+		new_fst = FST(new_fst_base)
+		new_fst.isymbols_fn = self.isymbols_fn
+		new_fst.osymbols_fn = self.osymbols_fn
+		return new_fst
 
 
