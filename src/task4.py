@@ -2,6 +2,7 @@
 from collections import defaultdict
 from Helper import *
 from scipy.misc import logsumexp
+import math
 
 def dump_translations(self):
 	"""
@@ -72,8 +73,10 @@ def get_translation_prob(derivations):
 	Get the translation probability (posterior) given a set of weighted derivations.
 	Interpreting weighs as log-probability, it calculates log( sum_w exp(w) )
 	"""
-	#return sum([float(weight) for weight, _ in derivations])
-	return logsumexp([float(weight) for weight, _ in derivations])
+	return sum([math.exp(-float(weight)) for weight, _ in derivations])
+	# return sum([float(weight) for weight, _ in derivations])
+	# return logsumexp([float(weight) for weight, _ in derivations])
+	# return math.exp(-sum([float(weight) for weight, _ in derivations]))
 
 
 if __name__ == '__main__':

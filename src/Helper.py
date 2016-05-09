@@ -47,7 +47,7 @@ class Helper:
 			self.grammar_base_fn 			= "../data/rules.n-best.dev/grammar"	
 			self.weight_file				= "../data/weights.lattice"
 			self.translation_base 			= root + "lat-translations"
-			self.permutations_fn 			= root + "dev.enpp.nbest"
+			self.permutations_fn 			= "../data/dev.enpp.nbest"
 			self.blue_scores_fn 			= root + "lat-bleu-scores.txt"
 			directories						= [root, "lat-inputs", "lat-phrase-tables", 
 												"lat-translations", "lat-derivations", 

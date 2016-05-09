@@ -71,8 +71,8 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
             weight += feature_weights['Glue'] * glue
             weight += feature_weights['WordPenalty'] * word_penalty
             weight += feature_weights['PassThrough'] * OOV_count
-            if 'LatticeCost' in feature_weights:
-                perm_dict = self.parse_permutation_file()
+            # if 'LatticeCost' in feature_weights:
+            #     perm_dict = self.parse_permutation_file()
             #    weight += feature_weights['LatticeCost'] *
                 
             # Build the FST 

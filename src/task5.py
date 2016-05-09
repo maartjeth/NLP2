@@ -74,7 +74,7 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 		# loop over all permutations per sentence
 		for prob, perm_positions, perm_words in perm_vals: 
 
-			prob = - math.log(prob) * lattice_cost
+			prob =  math.log(prob) * lattice_cost
 			# perm_positions = perm_positions.split(" ")
 			# perm_words = perm_words.split(" ")
 
