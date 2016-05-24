@@ -1,6 +1,4 @@
-#####
-# Do all tasks
-#
+# Perform all tasks
 
 from Helper import *
 from FST import *
@@ -10,14 +8,20 @@ from task2 import *
 from task3 import *
 from task4 import *
 from task5 import *
-from task6 import *
 
-def do_tasks(H, tasks=[0,1,2,3,4], draw=False, bleu=False):
+def do_tasks(H, tasks=None, exp_type="monotone", draw=False, bleu=False):
 	print "\nStarting with Helper " + H.type
 	
+	if tasks == None:
+		if exp_type == "lattice":
+			tasks = [0,5,2,3,4]
+		elif exp_type == "monotone":
+			tasks = [0,1,2,3,4]
+
 	# Task 0
 	if 0 in tasks:
 		print "\tTask 0..."
+
 		H.preprocess_oov()
 		print "\tDone with task 0.\n"
 	
@@ -26,6 +30,12 @@ def do_tasks(H, tasks=[0,1,2,3,4], draw=False, bleu=False):
 		print "\tTask 1..."
 		H.generate_input_fsts(draw=draw)
 		print "\tDone with task 1.\n"
+
+	# Task 1
+	if 5 in tasks:
+		print "\tTask 5..."
+		H.generate_input_lattices(draw=draw)
+		print "\tDone with task 5.\n"
 
 	# Task 2
 	if 2 in tasks:
@@ -49,22 +59,22 @@ def do_tasks(H, tasks=[0,1,2,3,4], draw=False, bleu=False):
 		if bleu:
 			print H.dump_bleu_scores()
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 	
 	# H = Helper("blackdog-monotone")
 	# do_tasks(H, draw=True)
 
 	# H = Helper("blackdog-lattice")
-	# do_tasks(H, draw=True)
+	# do_tasks(H, tasks=[0,5,2,3,4], draw=True)
 
 	# H = Helper("freundin-monotone")
 	# do_tasks(H, draw=True)
 
-	# H = Helper("freundin-lattice")
-	# do_tasks(H, draw=True)
+	# # H = Helper("freundin-lattice")
+	# # do_tasks(H, tasks=[0,5,2,3,4], draw=True)
 
-	H = Helper("all-monotone")
-	do_tasks(H, draw=False, bleu=True)
+	# H = Helper("all-monotone")
+	# do_tasks(H, draw=False, bleu=True)
 
 	# H = Helper("all-lattice")
-	# do_tasks(H, draw=False, bleu=True)
+	# do_tasks(H, tasks=[0,5,2,3,4], draw=False, bleu=True)
