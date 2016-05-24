@@ -1,7 +1,7 @@
-/data
-/dummydata/*
-/notebooks
+/project2/data
+/project2/dummydata/*
+/project2/notebooks
 .ipynb*
 *.pyc
-/results
-/dummydata
+/project2/results
+/project2/dummydata
