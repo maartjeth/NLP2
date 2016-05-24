@@ -3,3 +3,4 @@
 .ipynb*
 *.pyc
 /project2/results
+/project3/data
