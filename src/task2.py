@@ -1,20 +1,17 @@
-#################################
-## Task 2
-#
-# Transform the phrase tables into transducers. 
-#
-## To do
-# * Weigh all arcs using the linear model. Now they all have weight .5 or 1
-# *
-#
+# Task 2
+
 import math
 from Helper import *
 from FST import *
 
-def get_feature_weights(self):
+def get_feature_weights(self, refresh=False):
     """
     Gets a dictionary with feature weights
     """
+    if refresh:
+        del self.feature_weights
+        return self.get_feature_weights()
+        
     try: 
         return self.feature_weights
     except AttributeError:
@@ -26,7 +23,8 @@ def get_feature_weights(self):
                     continue
                 else:
                     key, val = line.split(" ")
-                    feature_weights.append((key, float(val)))
+                    if key in self.features:
+                        feature_weights.append((key, float(val)))
         self.feature_weights = dict(feature_weights)
     return self.feature_weights
 
@@ -44,7 +42,6 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
     if sentence_ids == None: sentence_ids = range(self.num_sentences)
 
     for line_num in sentence_ids:
-        #print "Starting sentence %s (%s rules in grammar)" % (line_num, len(grammar))
         fst = FST(out_base + "-" + str(line_num))
         grammar = self.get_grammar(line_num, grammar_base_fn=grammar_base_fn)
         
@@ -67,13 +64,11 @@ def generate_phrase_table_fsts(self, sentence_ids=None, grammar_base_fn=None, ou
             feature_weights = self.get_feature_weights()
             for feature_value in parts[3].split(" "):
                 feature, value = feature_value.split("=")
-                weight += feature_weights[feature] * float(value)
+                if feature in feature_weights.keys():
+                    weight += feature_weights[feature] * float(value)
             weight += feature_weights['Glue'] * glue
             weight += feature_weights['WordPenalty'] * word_penalty
             weight += feature_weights['PassThrough'] * OOV_count
-            # if 'LatticeCost' in feature_weights:
-            #     perm_dict = self.parse_permutation_file()
-            #    weight += feature_weights['LatticeCost'] *
                 
             # Build the FST 
             if len(english) == 1 and len(japanese) == 1:

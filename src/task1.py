@@ -49,7 +49,7 @@ def generate_input_fsts(self, sentences=None, out_base=None, draw=False):
 # Turn this into a class method
 Helper.generate_input_fsts = generate_input_fsts
 
-if __name__ == "__main__" or True:
+if __name__ == "__main__":
     # H = Helper(type="all-monotone")
     # H.generate_input_fsts()
 

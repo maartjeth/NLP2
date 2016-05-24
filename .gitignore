@@ -1,6 +1,7 @@
 /data
-/dummies
+/dummydata/*
 /notebooks
 .ipynb*
 *.pyc
 /results
+/dummydata

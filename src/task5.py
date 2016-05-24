@@ -1,14 +1,5 @@
 # task 5
 
-# Task: pack permutations into weighted lattices: these are the transducers as shown in figure 6 of the assignment (or determinstic versions of those)
-
-# 1) Read file --> [] ||| probs ||| permutation in numbers --> isyms ||| permutations in words --> osyms
-# 2) Make the files for the fst
-# 3) Produce fsts --> input for question 6
-# 4) Want to make a determinstic version of the non-deterministic version?
-
-# + add new weights!
-
 from Helper import *
 from FST import *
 import task2
@@ -74,9 +65,7 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 		# loop over all permutations per sentence
 		for prob, perm_positions, perm_words in perm_vals: 
 
-			prob =  math.log(prob) * lattice_cost
-			# perm_positions = perm_positions.split(" ")
-			# perm_words = perm_words.split(" ")
+			prob =  -math.log(prob) * lattice_cost
 
 			for i, (pos, word) in enumerate(zip(perm_positions, perm_words)):
 				if i == 0:
@@ -94,7 +83,6 @@ def generate_input_lattices(self, fst_base=None, draw=False, num_sentences=None)
 
 		for i, word in enumerate(osyms):
 			osymbols_txt += "%s %s\n" % (word, i+1)
-		# osymbols_txt += "OOV %s\n" % (i+2)
 
 		for i, word in enumerate(isyms):
 			isymbols_txt += "%s %s\n" % (word, i+1)
@@ -117,7 +105,7 @@ Helper.generate_input_lattices = generate_input_lattices
 if __name__ == '__main__':
 	
 	H = Helper(type="all-lattice")
-	H.preprocess_oov() # Just to be sure? (The grammar changed, after all...)
+	H.preprocess_oov()
 	H.generate_input_lattices()
 
 	# H = Helper(type="blackdog-lattice")

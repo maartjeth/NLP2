@@ -8,14 +8,15 @@ class Helper:
 	that we use in all tasks.
 	"""
 
-	def __init__(self, type):
+	def __init__(self, type, root=None):
 
 		self.OOV = "OOV"
 		directories = []
 		self.type = type
-		
+		self.sentences_start = 0
+
 		if type == "all-monotone":
-			root = "../results/"
+			if root == None: root = "../results/"
 			self.num_sentences 				= 100
 			self.raw_sentences_fn 			= "../data/dev.en"
 			self.sentences_fn 				= root + "dev-ooved-mono.en"
@@ -30,12 +31,11 @@ class Helper:
 			self.blue_scores_fn 			= root + "mono-bleu-scores.txt"
 			directories						= [root, "mono-inputs", "mono-phrase-tables", 
 												"mono-translations", "mono-derivations", 
-												"mono-best-derivations"]
+												"mono-best-derivations","blue-scores"]
 			directories = [root + d for d in directories]
-			print "directories: ", directories
 
 		elif type == "all-lattice":
-			root = "../results/"
+			if root == None: root = "../results/"
 			self.num_sentences 				= 100
 			self.raw_sentences_fn 			= "../data/dev.en"
 			self.sentences_fn 				= root + "dev-ooved-lattice.en"
@@ -51,15 +51,14 @@ class Helper:
 			self.blue_scores_fn 			= root + "lat-bleu-scores.txt"
 			directories						= [root, "lat-inputs", "lat-phrase-tables", 
 												"lat-translations", "lat-derivations", 
-												"lat-best-derivations"]
+												"lat-best-derivations", "blue-scores"]
 			directories = [root + d for d in directories]
 
-
 		elif type == "blackdog-monotone":
-			root = "../dummydata/blackdog-monotone/"
+			if root == None: root = "../dummydata/blackdog-monotone/"
 			self.num_sentences				= 1
 			self.raw_sentences_fn 			= "../dummydata/blackdog.raw.en"
-			self.sentences_fn 				= "../dummydata/blackdog.en"
+			self.sentences_fn 				= root + "blackdog.en"
 			self.input_fst_base 			= root + "input"
 			self.phrase_table_fst_base 		= root + "phrase-table"
 			self.translation_fst_base   	= root + "translation"	
@@ -72,10 +71,10 @@ class Helper:
 			directories 					= [root]
 
 		elif type == "blackdog-lattice":
-			root = "../dummydata/blackdog-lattice/"
+			if root == None: root = "../dummydata/blackdog-lattice/"
 			self.num_sentences				= 1
 			self.raw_sentences_fn 			= "../dummydata/blackdog.raw.en"
-			self.sentences_fn 				= "../dummydata/blackdog.en"
+			self.sentences_fn 				= root + "blackdog.en"
 			self.input_fst_base 			= root + "input"
 			self.phrase_table_fst_base 		= root + "phrase-table"
 			self.translation_fst_base   	= root + "translation"	
@@ -88,10 +87,10 @@ class Helper:
 			directories 					= [root] 
 
 		elif type == "freundin-monotone":
-			root = "../dummydata/freundin-monotone/"
+			if root == None: root = "../dummydata/freundin-monotone/"
 			self.num_sentences				= 1
 			self.raw_sentences_fn 			= "../dummydata/freundin.raw.en"
-			self.sentences_fn 				= "../dummydata/freundin.en"
+			self.sentences_fn 				= root + "freundin.en"
 			self.input_fst_base 			= root + "input"
 			self.phrase_table_fst_base 		= root + "phrase-table"
 			self.translation_fst_base   	= root + "translation"	
@@ -100,14 +99,13 @@ class Helper:
 			self.grammar_base_fn 			= "../dummydata/freundin"	
 			self.weight_file				= "../data/weights.monotone"
 			self.translation_base 			= "../dummydata/freundin-monotone-translations"
-			self.permutations_fn 			= "../dummydata/freundin.perm"
 			directories 					= [root]
 
 		elif type == "freundin-lattice":
-			root = "../dummydata/freundin-lattice/"
+			if root == None: root = "../dummydata/freundin-lattice/"
 			self.num_sentences				= 1
 			self.raw_sentences_fn 			= "../dummydata/freundin.raw.en"
-			self.sentences_fn 				= "../dummydata/freundin.en"
+			self.sentences_fn 				= root + "freundin.en"
 			self.input_fst_base 			= root + "input"
 			self.phrase_table_fst_base 		= root + "phrase-table"
 			self.translation_fst_base   	= root + "translation"	
@@ -118,12 +116,22 @@ class Helper:
 			self.translation_base 			= "../dummydata/freundin-lattice-translations"
 			self.permutations_fn 			= "../dummydata/freundin.perm"
 			directories 					= [root]
-	
-		# Create missing directories
-		for directory in directories:
+
+		# Create missing directories		
+		self.directories = directories
+		if not os.path.isdir(root):
+			os.makedirs(root)
+		self.update_dirs(self.directories)
+
+		self.features = ["IsSingletonF", "IsSingletonFE", "SampleCountF", "CountEF",
+						 "EgivenFCoherent", "MaxLexEgivenF", "Glue", "WordPenalty",
+						 "PassThrough", "LatticeCost"]#, "MaxLexFgivenE"]
+
+	def update_dirs(self, directories=None):
+		if directories==None: directories = self.directories
+		for directory in self.directories:
 			if not os.path.isdir(directory):
 				os.makedirs(directory)
-
 
 	def get_sentences(self, sentences_fn=None):
 		"""
@@ -159,6 +167,12 @@ class Helper:
 				out += "\t%s\n" % f.read()
 			os.remove("__tmp.txt")
 		
+		out += "\nFEATURE WEIGHTS\n"
+		for feature, val in self.get_feature_weights().iteritems():
+			out += "\n\t%s: %s" % (feature, val)
+
+		out += "\n\nNUM SENTENCES: %s" % self.num_sentences
+
 		with open(self.blue_scores_fn, "w") as f:
 			f.write(out)
 

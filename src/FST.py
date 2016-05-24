@@ -175,8 +175,6 @@ class FST:
 				% (n, self.delta, self.fst_fn, short_fst_base)
 		subprocess.call([call], shell=True)
 
-		# TODO: are these really the correct isymbols and osymbols??
-		# Bas: seems like it!
 		n_best_fst = FST(short_fst_base)
 		n_best_fst.isymbols_fn = self.isymbols_fn
 		n_best_fst.osymbols_fn = self.osymbols_fn

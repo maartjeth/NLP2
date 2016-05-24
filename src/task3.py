@@ -25,7 +25,7 @@ def get_next_states(state, states, rec=0, max_rec_depth=1000):
 		return [state] + get_next_states(next_state, states, 
 			rec=rec+1, max_rec_depth=max_rec_depth)
 
-def path2translation(path):
+def path2translation(path, orig_sentence=""):
 	"""
 	Turn a path (list of states) into a string formatted as in the instructions
 	For more details about the path format, see `get_next_states()`
@@ -64,6 +64,11 @@ def path2translation(path):
 	for phrase in phrases:
 		if phrase["phrase"] != "":
 			if phrase["phrase"][-1] == " ": phrase["phrase"] = phrase["phrase"][:-1]
+			
+			# Replace OOV's!
+			if phrase['phrase'] == "OOV":
+				phrase['phrase'] = orig_sentence[phrase['start']-1]
+
 			derivation += "%s |%s-%s| " % (phrase['phrase'], phrase['start'], phrase['end'])
 			translation += phrase["phrase"] + " "
 	translation = translation[:-1]
@@ -72,7 +77,7 @@ def path2translation(path):
 
 	return translation, derivation, weight
 
-def get_path_translations(txtfst_fn):
+def get_path_translations(txtfst_fn, orig_sentence):
 	"""
 	Get the translations of to all paths in the FST. If the FST has loops,
 	this will fail miserably. Typically, you use this function on a FST
@@ -99,10 +104,9 @@ def get_path_translations(txtfst_fn):
 
 	# Get all path, transform to path strings and return.
 	translations = []
-	for init_state in states[0]:
+	for i, init_state in enumerate(states[0]):
 		path = get_next_states(init_state, states)
-		translations.append(path2translation(path))
-
+		translations.append(path2translation(path, orig_sentence))
 	return translations
 
 def generate_best_derivations_fsts(self, n=100, draw=False):
@@ -117,10 +121,13 @@ def generate_best_derivations_fsts(self, n=100, draw=False):
 		best_derivations_fst.copy_symbols()
 		if draw: best_derivations_fst.draw()
 
+		with open(self.raw_sentences_fn, 'r') as file:
+			orig_sentence = file.read().split("\n")[i].split(" ")
+
 		# Save to file
 		out_fn 		 = "%s.100best.%s" % (self.best_derivations_base, i)
 		full_out_fn  = "%s.100best.%s.full" % (self.best_derivations_base, i)
-		translations = get_path_translations(best_derivations_fst.txtfst_fn)
+		translations = get_path_translations(best_derivations_fst.txtfst_fn, orig_sentence)
 		with open(out_fn, "w") as out_f:
 			with open(full_out_fn, "w") as full_out_f:
 				for i, (trans, deriv, w) in enumerate(translations):
@@ -159,11 +166,12 @@ Helper.generate_translation_fsts = generate_translation_fsts
 Helper.generate_best_derivations_fsts = generate_best_derivations_fsts
 
 if __name__ == '__main__':
-	
-	# H = Helper(type="all-monotone")
-	# H.generate_translation_fsts()
-	# H.generate_best_derivations_fsts()
+	root = "../results-monotone/"
+	H = Helper(type="all-monotone", root=root)
+	H.num_sentences = 2
+	H.generate_translation_fsts()
+	H.generate_best_derivations_fsts()
 
-	H = Helper(type="blackdog-monotone")
-	H.generate_translation_fsts(draw=True)
-	H.generate_best_derivations_fsts(draw=True)
+	# H = Helper(type="blackdog-monotone")
+	# H.generate_translation_fsts(draw=True)
+	# H.generate_best_derivations_fsts(draw=True)

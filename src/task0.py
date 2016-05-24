@@ -36,7 +36,7 @@ def preprocess_oov(self, raw_sentences_fn=None,
         replace_oov = lambda word: word if word in en_words else self.OOV
         ooved_words = map(replace_oov, sentences[line_num].split(" "))
         ooved_sentences += " ".join(ooved_words) + "\n"
-
+    
     with open(self.sentences_fn, 'w') as f:
         f.write(ooved_sentences)
 
