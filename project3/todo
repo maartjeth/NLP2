@@ -55,15 +55,25 @@ Dependency parser:
 $>java -cp anna-3.3.jar is2.parser.Parser -model <modelle> -test <inputle>
 -out <outputle>
 
+Je moet alles achter elkaar runnen.
 Een voorbeeld van wat ik gerund heb:
 
-java -cp anna-3.61.jar is2.tag.Tagger -model tag-ger-3.6.model -test test_tag.test -out test.output
+java -cp anna-3.61.jar is2.lemmatizer.Lemmatizer -model lemma-ger-3.6.model -test test_tag.test -out test1.output
 
-En van de output die dat gaf:
+java -cp anna-3.61.jar is2.tag.Tagger -model tag-ger-3.6.model -test test1.output -out test2.output
 
-1	Ich	Ich	_	_	PPER	_	_	-1	-1	_	_	_	_
-2	bin	bin	_	_	VAFIN	_	_	-1	-1	_	_	_	_
-3	alt	alt	_	_	ADJD	_	_	-1	-1	_	_	_	_
-4	.	.	_	_	$.	_	_	-1	-1	_	_	_	_
+java -cp anna-3.61.jar is2.mtag.Tagger -model morphology-ger-3.6.model -test test2.output -out test3.output
+
+java -cp anna-3.61.jar is2.parser.Parser -model parser-ger-3.6.model -test test2.output -out test4.output
+
+En van de output die dat gaf (laatste file):
+
+1	Ich	Ich	ich	_	PPER	_	_	-1	2	_	SB	_	_
+2	bin	bin	sein	_	VAFIN	_	_	-1	0	_	--	_	_
+3	alt	alt	alt	_	ADJD	_	_	-1	2	_	PD	_	_
+4	.	.	--	_	$.	_	_	-1	3	_	--	_	_
 
 Je ziet dus dat ie de kolom invult waar je naar vraagt.
+
+Google doc met wat printscreens: 
+https://docs.google.com/document/d/1AguWB3PffNGVkPgVXQIp0HrneGwjtgkXqdkWKcoSSl0/edit?usp=sharing
