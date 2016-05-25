@@ -155,5 +155,7 @@ class Helper:
 
 if __name__ == "__main__":
 	H = Helper()
-	# for s, candidates in H.read_1000best(first=1, last=2):
-		# print s, [candidate['source']+"\n" for candidate in candidates]
+	for s, candidates in H.read_1000best(first=1, last=2):
+		print candidates[1]['source']
+		#print s, [candidate['source']+"\n" for candidate in candidates]
+		#print candidate['translation']
