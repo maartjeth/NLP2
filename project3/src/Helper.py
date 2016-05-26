@@ -155,5 +155,14 @@ class Helper:
 
 if __name__ == "__main__":
 	H = Helper()
-	# for s, candidates in H.read_1000best(first=1, last=2):
-		# print s, [candidate['source']+"\n" for candidate in candidates]
+
+	# for s, candidates in H.read_1000best(kind="dev",first=0, last=1):
+	# 	# a = 'boe'
+	# 	for i, candidate in enumerate(candidates):
+	# 		if i == 0 or i==999:
+	# 			print
+	# 			# print candidate['rank']
+	# 			print candidate['features']
+	# 			# print " ".join([t[0] for t in candidate['translation']])
+	# 	# 	i
+		# print candidate
