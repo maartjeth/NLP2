@@ -1,6 +1,6 @@
 #!/bin/bash
 input_fn="parse_test.txt"
-output_dir=""
+output_dir="../test"
 
 mate="../mate/anna-3.61.jar"
 model_lemma="../mate/lemma-ger-3.6.model"
