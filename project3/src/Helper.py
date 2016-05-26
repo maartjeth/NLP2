@@ -7,6 +7,7 @@ class Helper:
 		# Directories
 		"data_dir": "../data",
 		"results_dir": "../results/",
+		"parse_dir": "../parse/",
 
 		# Weights
 		"baseline_weights_fn": "{data_dir}/baseline.weights",
@@ -136,14 +137,17 @@ class Helper:
 				# turn phrase1 |1-3| phase2 |3-4| ... 
 				# into [(phrase1, 1, 3), (phras2, 3, 4), ...]
 				translation = []
+				translation_sent = ""
 				parts = re.split(" \|(\d+)-(\d+)\| ", r_translation)
 				for j in range(0, len(parts)-1, 3):
 					translation.append((parts[j], parts[j+1], parts[j+2])) 
+					translation_sent += parts[j] + ' '
 
 				# Put all that in a dictionary and store
 				candidates.append({
 					'rank': i % 1000,
 					'translation': translation,
+					'translation_sent': translation_sent,
 					'features': features,
 					'alignment': alignment,
 					'system_score': float(system_score),
@@ -156,6 +160,6 @@ class Helper:
 if __name__ == "__main__":
 	H = Helper()
 	for s, candidates in H.read_1000best(first=1, last=2):
-		print candidates[1]['source']
+		print candidates[0]['translation_sent']
 		#print s, [candidate['source']+"\n" for candidate in candidates]
 		#print candidate['translation']
