@@ -1,7 +1,7 @@
 #PBS -lnodes=1
 #PBS -lwalltime=24:00:00
 
-name="part1"
+name="part2"
 
 # Parameters
 scratch="$TMPDIR"
