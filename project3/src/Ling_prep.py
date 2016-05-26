@@ -3,17 +3,29 @@ import subprocess
 
 def prep_parse_files(self):
 
-	for s, candidates in H.read_1000best(first=1, last=2):
-		# every i is an instance of a candidate (i.e. 1000 i's for every candidate)
-		# for every s you want to make a new file
-		#if s == '1': # for debugging
-		filename = self.settings['parse_dir']+"%s%s" %("parse_input", s)
-		with open(filename, 'w') as fn:
+	filename = self.settings['parse_dir']+"%s" %("parse_input")
+	with open(filename, 'w') as fn:
+		for s, candidates in H.read_1000best(first=1, last=2):
+			# every i is an instance of a candidate (i.e. 1000 i's for every candidate)
+			#if s == '1': # for debugging
 			for i, candidate in enumerate(candidates):
 				CoNLL_lines = ""
 				#if i == 0 or i == 1 or i == 890: # for debugging
 				translation = candidate['translation_sent'].split()
 				for num, token in enumerate(translation):
+					CoNLL_lines += "%s\t%s\t%s\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\n" %(str(num+1), token, token)
+
+				CoNLL_lines += "\n"
+				fn.write(CoNLL_lines)
+				print candidate['translation_sent']
+
+def prep_parse_files2(self, all_sents):
+	filename = self.settings['parse_dir']+"%s" %("parse_input")
+	with open(filename, 'w') as fn:
+		with open(all_sents) as all_sents:
+			for i, line in enumerate(all_sents):
+				CoNLL_lines = ""
+				for num, token in enumerate(line.split()):
 					CoNLL_lines += "%s\t%s\t%s\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\n" %(str(num+1), token, token)
 
 				CoNLL_lines += "\n"
@@ -79,9 +91,10 @@ def parse_pipeline(self, steps, num_files):
 
 Helper.prep_parse_files = prep_parse_files
 Helper.parse_pipeline = parse_pipeline
+Helper.prep_parse_files2 = prep_parse_files2
 
 if __name__ == '__main__':
 	H = Helper()
-	#H.prep_parse_files()
-	H.parse_pipeline([0, 1, 2, 3], 1)
+	H.prep_parse_files2('../data/test_data')
+	#H.parse_pipeline([0, 1, 2, 3], 1)
 	#H.parse_pipeline([0], 1)
