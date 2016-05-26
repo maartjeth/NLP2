@@ -6,3 +6,5 @@
 /project3/data
 *.model
 *.jar
+/project3/mate
+/project3/parse
