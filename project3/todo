@@ -1,4 +1,23 @@
-# NLP2 Project 3: Ranking translations
+TODO:
+
+1) Extract all features
+-- Core features: done
+-- Feature combinations: scikit learn
+-- Linguistic features: Maartje
+-- Sparse data features:
+
+2) Evaluate all sentences
+-- Meteor (BLUE?): Bas
+
+3) Pro
+-- Implement algorithm to get the features for the SVM: BAS
+-- Train SVM weights: Maartje (Done)
+
+4) Final evaluation
+-- Rank all sentences based on their weights (= features * weight)
+-- Compute score (same as for step 2)
+
+
 
 PARSER:
 
