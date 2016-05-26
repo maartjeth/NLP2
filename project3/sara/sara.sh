@@ -2,10 +2,11 @@
 #PBS -lwalltime=24:00:00
 
 # Parameters
-#scratch="$TMPDIR"
-home="/home/basc"
+scratch="$TMPDIR"
+home="$HOME"
+#home="/home/basc"
+#scratch="$home/nlp/project3/test"
 
-scratch="$home/nlp/project3/test"
 project_root="$home/nlp/project3"
 input_archive_fn="$project_root"/sara/test.gz
 
