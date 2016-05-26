@@ -99,39 +99,57 @@ class Helper:
 		"""
 		# Get start/end line numbers
 		if last == None: last = first;
-		start = first * 1000
-		end = (last + 1 )* 1000 - 1
 		
+		# Current sentence
+		cur_sentence = 0
+		rank = 0
+		candidates = []
+
 		# Open the file
 		fn = getattr(self, "%s_1000best_fn" % kind)
 		with open(fn, 'r') as file:
 
 			# Go through all lines, but only parse those between start and end
 			for i, line in enumerate(file):
-				if i < start: continue
-				if i > end: break
-				if i % 1000 == 0: candidates = []
+				if cur_sentence > last: break
 
 				# Split!
 				line = line.replace("\n","")
 				sentence, r_translation, r_features, \
 					system_score, r_alignment, source = line.split(" ||| ")
 
+				# New sentence!
+				if int(sentence) == cur_sentence + 1:
+					yield cur_sentence, candidates
+
+					# Reset
+					candidates = []
+					rank = 0
+					cur_sentence += 1
+					
+				elif int(sentence) != cur_sentence:
+					# Otherwise, weird stuff happened. This should never be the case.
+					raise Exception("The candidate on line %s does not belong to the current"
+									+"sentence (%s) or the next (%s), but to %s. That's weird."
+									% (i, cur_sentence, cur_sentence+1, sentence))
+
 				## Features
 				# Turn TargetLM= -36.3119 PermutationDistortion0= 0 0 0 0 SourceLM= -56.2177 ...
 				# into {'TargetLM': -36.3119, 'PermutationDistortion0': [0,0,0,0], 'SourceLM': -56.2117, ...}
 				features = {}
-				parts = re.split("\s?([A-Za-z0-9]+)=\s?", r_features)[1:]
-				for j in range(0, len(parts) - 1, 2):
-					name = parts[j]
-					feat = map(float, parts[j+1].split())
-					features[name] = feat[0] if len(feat) == 1 else feat
-				
+				# parts = re.split("\s?([A-Za-z0-9]+)=\s?", r_features)[1:]
+				# for j in range(0, len(parts) - 1, 2):
+				# 	name = parts[j]
+				# 	feat = map(float, parts[j+1].split())
+				# 	features[name] = feat[0] if len(feat) == 1 else feat
+
 				## Alignment
 				# Turn 0-0 10-5 ... into [(0,0), (10,5), ...]
-				split_by_dash = lambda string: tuple(map(int, string.split('-')))
-				alignment = [a for a in r_alignment.split(" ") if a != '']
-				alignment = map( split_by_dash, alignment)
+				# split_by_dash = lambda string: tuple(map(int, string.split('-')))
+				# alignment = [a for a in r_alignment.split(" ") if a != '']
+				# alignment = map( split_by_dash, alignment)
+				# 
+				alignment = r_alignment
 				
 				## Translation
 				# turn phrase1 |1-3| phase2 |3-4| ... 
@@ -145,7 +163,7 @@ class Helper:
 
 				# Put all that in a dictionary and store
 				candidates.append({
-					'rank': i % 1000,
+					'rank': rank,
 					'translation': translation,
 					'translation_sent': translation_sent,
 					'features': features,
@@ -153,24 +171,33 @@ class Helper:
 					'system_score': float(system_score),
 					'source': source
 				})
+				rank += 1
 
-				if i % 1000 == 999:
-					yield sentence, candidates
+			# And the final line
+			yield cur_sentence, candidates
+
 
 if __name__ == "__main__":
 	H = Helper()
 
-	# for s, candidates in H.read_1000best(kind="dev",first=0, last=1):
-	# 	# a = 'boe'
-	# 	for i, candidate in enumerate(candidates):
-	# 		if i == 0 or i==999:
-	# 			print
-	# 			# print candidate['rank']
-	# 			print candidate['features']
-	# 			# print " ".join([t[0] for t in candidate['translation']])
-	# 	# 	i
-		# print candidate
-# 	for s, candidates in H.read_1000best(first=1, last=2):
-# 		print candidates[0]['translation_sent']
-# 		#print s, [candidate['source']+"\n" for candidate in candidates]
-# 		#print candidate['translation']
+	# with open('../nlp-intermediates/translations-dev.txt') as file:
+	# 	for i, l in enumerate(file):
+	# 		if i > 10690 and i <10699:
+	# 			print i, l
+
+	# with open('../nlp-intermediates/translations-test.txt') as file:
+	# 	print len([l for l in file])
+
+	# with open('../data/nlp2-test.1000best') as file:
+	# 	print len([l for l in file])
+	# 	
+	# with open('../nlp-intermediates/translations-test.txt','w') as file:
+	# 	for s, candidates in H.read_1000best(kind="test",first=0, last=3000):
+	# 		translations = [candidate['translation_sent'] for candidate in candidates ]
+	# 		for t in translations:
+	# 			file.write(t + "\n")
+	
+
+
+	from Ling_prep import *
+	
