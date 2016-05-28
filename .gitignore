@@ -10,6 +10,7 @@
 /project3/parse
 /project3/nlp-intermediates
 /project3/output
-/project3/test
 *.gz
-/project3/dev
+/project3/data*
+/project3/files
+/project3/libraries

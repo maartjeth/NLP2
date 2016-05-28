@@ -64,7 +64,7 @@ class Helper:
 			# Store as class property 
 			setattr(self, key, value)
 
-	def read_1000best(self, kind="dev", first=0, last=0):
+	def read_1000best(self, kind="dev", first=0, last=0, translation_only=False):
 		"""
 		Loads the 1000 best translation candidates for sentences (not lines!) 
 		`first` up to and including `last`. For every sentence, it yields
@@ -81,7 +81,7 @@ class Helper:
 				'system_score': float, dot product of features and baseline weights?
 				'source': 		string, the source sentence
 			}
-		``` 
+		```  
 		Typically you would use this as follows:
 		```
 		for i, candidates in helper.read_1000best(first=10, last=15):
@@ -137,19 +137,21 @@ class Helper:
 				# Turn TargetLM= -36.3119 PermutationDistortion0= 0 0 0 0 SourceLM= -56.2177 ...
 				# into {'TargetLM': -36.3119, 'PermutationDistortion0': [0,0,0,0], 'SourceLM': -56.2117, ...}
 				features = {}
-				# parts = re.split("\s?([A-Za-z0-9]+)=\s?", r_features)[1:]
-				# for j in range(0, len(parts) - 1, 2):
-				# 	name = parts[j]
-				# 	feat = map(float, parts[j+1].split())
-				# 	features[name] = feat[0] if len(feat) == 1 else feat
+				if translation_only == False:
+					parts = re.split("\s?([A-Za-z0-9]+)=\s?", r_features)[1:]
+					for j in range(0, len(parts) - 1, 2):
+						name = parts[j]
+						feat = map(float, parts[j+1].split())
+						features[name] = feat[0] if len(feat) == 1 else feat
 
 				## Alignment
 				# Turn 0-0 10-5 ... into [(0,0), (10,5), ...]
-				# split_by_dash = lambda string: tuple(map(int, string.split('-')))
-				# alignment = [a for a in r_alignment.split(" ") if a != '']
-				# alignment = map( split_by_dash, alignment)
-				# 
-				alignment = r_alignment
+				if translation_only == False:
+					split_by_dash = lambda string: tuple(map(int, string.split('-')))
+					alignment = [a for a in r_alignment.split(" ") if a != '']
+					alignment = map( split_by_dash, alignment)
+				else:
+					alignment = r_alignment
 				
 				## Translation
 				# turn phrase1 |1-3| phase2 |3-4| ... 
@@ -177,6 +179,16 @@ class Helper:
 			yield cur_sentence, candidates
 
 
+def get_chunk_line(line, chunk_size=500000):
+	"""
+	Returns the chunk where a line can be found and the 
+	line number of the line.
+	"""
+	chunk = (line / chunk_size) + 1
+	chunk_line = line %  chunk_size
+	return chunk, chunk_line
+
+
 if __name__ == "__main__":
 	H = Helper()
 
@@ -197,7 +209,17 @@ if __name__ == "__main__":
 	# 		for t in translations:
 	# 			file.write(t + "\n")
 	
+	for j in range(6,300):
+		source_fn = "../nlp-intermediates/dev/dev-part%s.txt" % j
+		target_fn = "../nlp-intermediates/dev/dev-part%s.prep.txt" % j
+		if os.path.isfile(source_fn) == False: break
+		with open(target_fn, 'w') as fn:
+			with open(source_fn) as all_sents:
+				for i, line in enumerate(all_sents):
+					CoNLL_lines = ""
+					for num, token in enumerate(line.split()):
+						CoNLL_lines += "%s\t%s\t%s\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\n" %(str(num+1), token, token)
 
-
-	from Ling_prep import *
-	
+					CoNLL_lines += "\n"
+					fn.write(CoNLL_lines)
+		
