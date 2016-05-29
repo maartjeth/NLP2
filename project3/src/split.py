@@ -6,11 +6,11 @@ Splits a file into chunks.
 chunk_size = 500000
 
 # The file that has to be chunked
-input_fn = "../data-dev/dev-targets.txt"
+input_fn = "../data-test/test-translations.txt"
 
 # The chunk filenames. The wildcard %s will be replace
 # by the chunk number
-chunk_fn = "../data-dev/eval/dev-targets-part%s.txt"
+chunk_fn = "../data-test/translations/test-translations-part%s.txt"
 
 ##############################################################
 

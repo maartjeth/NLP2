@@ -5,17 +5,24 @@
 # 
 
 # The "name" of this run. This can be "demo" or e.g. "part4"
-name="part6"
+name="part5"
 
 # The root directory
 root=~/Github\ Projects/NLP2/project3
 
+kind="test"
 ##################################################### 
 
+echo "**********************************************"
+echo "* Evaluate meteor scores"
+echo "* Name: $name"
+echo "* Kind: $kind"
+echo "**"
+
 # FIlenames
-translations="data-dev/translations/dev-translations-$name.txt"
-targets="data-dev/eval/dev-targets-$name.txt"
-eval_results="data-dev/eval/dev-meteor-$name.txt"
+translations="data-$kind/translations/$kind-translations-$name.txt"
+targets="data-$kind/eval/$kind-targets-$name.txt"
+eval_results="data-$kind/eval/$kind-meteor-output-$name.txt"
 
 # Location of METEOR and the german paraphrasing model
 meteor="libraries/meteor/meteor-1.5.jar"

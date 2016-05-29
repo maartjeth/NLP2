@@ -11,7 +11,7 @@ They contain all files for development and testing respectively. They should con
 * `dev-targets.txt`: a file with the corresponding target translations
 * `eval/`: a folder with all METEOR evaluations of the candidate translations. It contains target translations per part, the raw meteor output `dev-meteor-output-part?.txt` and the post-processed meteor scores `dev-meteor-part?.txt`
 * `parse/`: directory with parsed translation candidates
-* `parse-pre`: contains preporatory files for parsing. I compressed the files, since they are massively repetative (the unpacked file is ~2GB, and ~40MB packed)
+* `pre-parse`: contains pre-processed files for parsing. I compressed the files, since they are massively repetative (the unpacked file is ~2GB, and ~40MB packed)
 * `translations/`: contains the translations, split into six parts, of 500 000 sentences each (except for the last, which contains the remaining sentences)
 
 # `src` directory

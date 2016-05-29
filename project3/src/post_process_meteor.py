@@ -7,13 +7,13 @@ the segment scores and writes them to a new file.
 import re
 
 # The raw meteor output for a certain part
-meteor_fn = '../data-dev/eval/dev-meteor-output-part%s.txt'
+meteor_fn = '../data-test/eval/test-meteor-output-part%s.txt'
 
 # The output file with scores only
-scores_fn = '../data-dev/eval/dev-meteor-part%s.txt'
+scores_fn = '../data-test/eval/test-meteor-part%s.txt'
 
 # number of parts
-num_parts = 6
+num_parts = 5
 
 ###############################################################
 

@@ -7,6 +7,7 @@ import os
 import subprocess
 
 def prepare_parse(source_fn, target_fn, compress=True):
+	print("Preparsing %s to %s" % (source_fn, target_fn))
 	if os.path.isfile(source_fn) == False: return False
 	with open(target_fn, 'w') as fn:
 		with open(source_fn) as all_sents:
@@ -30,10 +31,11 @@ def prepare_parse(source_fn, target_fn, compress=True):
 if __name__ == "__main__":
 
 	# The to be parsed file
-	intput_fn = '../files/translations/dev-demo.txt'
+	input_fn = '../data-test/translations/test-translations-part%s.txt'
 
 	# The pre-processed file
-	output_fn = '../files/parse-prep/dev-demo.prep.txt'
+	output_fn = '../data-test/pre-parse/test-translations-part%s.prep.txt'
 
 	# Go!
-	prepare_parse(input_fn, output_fn)
+	for i in range(1, 6):
+		prepare_parse(input_fn % i, output_fn % i)
