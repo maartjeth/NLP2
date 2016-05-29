@@ -81,5 +81,8 @@ class CandidateScores(CandidateFeatures):
 	def get_features(self, line):
 		return [float(line.replace("\n", ""))]
 
+# class LinguisticCandidateFeatures(CandidateFeatures):
+# 	def get_features(self, line):
+		# Code to process a line
 	
 

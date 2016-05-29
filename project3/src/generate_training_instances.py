@@ -35,12 +35,17 @@ scores_fn = "../data-%s/eval/%s-meteor.txt" % (kind, kind)
 sentences_fn = '../data-%s/%s-sentences.json' % (kind, kind)
 sentences = json.load(open(sentences_fn,'r'))
 
+# Other feature files
+# linguistic_features_fn = "../data-dev/ling-features/dev-ling-features.txt"
+# ...
+
 ######### FEATURE OBJECTS ################################
 # Feature objects. Add as many as you like...
 #
 def_features = DefCandidateFeatures(candidates_fn, samples_fn, sentences)
+# ling_features = LinguisticCandidateFeatures(linguistic_features_fn, samples_fn, sentences)
 # ...
-all_features = [def_features] #, ...
+all_features = [def_features] #, ling_feauters, ...
 #####
 
 # A object with all METEOR scores
