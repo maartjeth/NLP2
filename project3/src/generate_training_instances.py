@@ -11,7 +11,9 @@ instance and one for negative instances.
 from CandidateFeatures import *
 
 # Sample size in the PRO
-sample_size = "100"
+sample_size = "10"
+
+name = "defdata"
 
 ##############################################################
 
@@ -19,8 +21,8 @@ sample_size = "100"
 kind = "dev"
 
 # Output file for positive and negative classification instances
-pos_instances_fn = "../data-%s/classification/%s-pos-instances-%s.txt" % (kind,kind,sample_size)
-neg_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind,kind,sample_size)
+pos_instances_fn = "../data-%s/classification/%s-pos-instances-%s.txt" % (kind,name,sample_size)
+neg_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind,name,sample_size)
 
 # Samples	
 samples_fn = '../data-%s/samples/%s-samples-%s.txt' % (kind, kind, sample_size)

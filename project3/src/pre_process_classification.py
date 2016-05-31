@@ -11,13 +11,16 @@ This should not take very long: ~6s for sample size 100
 # Sample size
 sample_size = 100
 
+# Name of the model
+name = "defdata"
+
 # Input files
-pos_instances_fn = "../data-dev/classification/dev-neg-instances-%s.txt" % sample_size
-neg_instances_fn = "../data-dev/classification/dev-neg-instances-%s.txt" % sample_size
+pos_instances_fn = "../data-dev/classification/%s-neg-instances-%s.txt" %  (name, sample_size)
+neg_instances_fn = "../data-dev/classification/%s-neg-instances-%s.txt" %  (name, sample_size)
 
 # Output files
-instances_output_fn = '../data-dev/classification/dev-instances-%s.pickle' % sample_size
-labels_output_fn = '../data-dev/classification/dev-labels-%s.pickle' % sample_size
+instances_output_fn = '../data-dev/classification/%s-instances-%s.pickle' %  (name, sample_size)
+labels_output_fn = '../data-dev/classification/%s-labels-%s.pickle' % (name, sample_size)
 
 ###################################################################
 
