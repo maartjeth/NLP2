@@ -18,6 +18,33 @@ TODO:
 -- Compute score (same as for step 2)
 
 
+Update 30/05/2016
+
+- Bigrams:
+Het feit dat het zo lang duurt ligt denk ik aan da het file zo groot wordt. Dat moet nog even geplitst worden.
+
+- Linguistic features:
+UPDATE: afgezien van deze punten, dit blijkt niet te werken, omdat de parser precies dezelfde fouten maakt als ie de zinnen pos-tagt.
+
+1) Prepositions: duurt de manier waarop dit nu gebeurt te lang?
+   + er moeten nog een aantal niet ascii preps in, maar dat gaf een foutmelding (vast niet moeilijk weg te krijgen): 
+
+		# 	'gemäß': None,
+		#	'gegenüber': None,
+		#	'über': None,
+		#	'für': None,
+
+2) VAFIN: het idee is dat er een persoonsvorm in de zin moet zitten en sommige zinnen hebben dit niet, alleen dit is ook weer een beetje foutgevoelig voor de parser, omdat sommige persoonsvormen, eindigend op 'en' als infinitief getagd zijn.
+
+Ik had eerst dus dit stukje code:
+			# 2.2) VAFIN in sentence (= something like a head verb, i.e. not only infinitive for example, some sentences that are ranked quite high have that and seem to be wrong according to me)
+			if pos_tag == 'VAFIN':
+				self.used_features += ' %s' %('0')
+maar heb besloten dat eruit te halen, omdat ik de pos tagger er niet mee vertrouwde
+
+
+
+
 
 PARSER:
 

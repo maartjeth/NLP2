@@ -101,6 +101,9 @@ for part in range(1, num_parts + 1):
 				prep_ids.append(prep2id[ (head_word, morph[:3]) ])
 			except KeyError: pass
 
+			# Ratio singular / plural nouns
+			# ratio male/female/neuter
+
 		# Remove duplicates and sort (cause, hey, why not?)
 		bigram_ids = set(sorted(bigram_ids))
 		tag_ids = set(sorted(tag_ids))
