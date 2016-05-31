@@ -7,7 +7,7 @@ kind = "dev"
 num_parts = 6
 
 # Filename of the parse
-parse_fn = '../data-dev/parse/translations-part%s.parse'
+parse_fn = '../data-%s/parse/translations-part%s.parse'
 
 # Feature vocabularies (inputs)
 tag_voc_fn = "../data-%s/ling-features/tag-vocabulary.pickle" % kind
@@ -48,7 +48,7 @@ for part in range(1, num_parts + 1):
 	print "Starting with part %s..." % part
 
 	# Open all files
-	parsed_file = open(parse_fn % part, 'r')
+	parsed_file = open(parse_fn % (kind, part), 'r')
 	tag_features_file = open(tag_features_fn, 'w');
 	bigram_features_file = open(bigram_features_fn, 'w');
 	art_features_file = open(art_features_fn, 'w');
