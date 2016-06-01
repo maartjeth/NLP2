@@ -27,40 +27,70 @@ class Features:
 		self.sentences = sentences
 		
 	def __iter__(self):
-		self.candidate_features = self.get_candidate_features()
+		self.sample_features = self.iter_samples()
 		return self	
 
 	def next(self):
-		return self.candidate_features.next()
+		return self.sample_features.next()
 
 	def get_features(self, line):
 		raise NotImplementedError('The method get_features is not implemented!')
 
-	def get_candidate_features(self):
+	def iter(self):
+		"""Iterates over all features"""
+		with open(self.features_fn, 'r') as features_file:
+			for line in features_file:
+				yield self.get_features(line)
+
+	def iter_sentences(self):
+		features_file = open(self.features_fn, 'r')
+		line_nr = -1
+		for sentence in self.sentences:
+			features = []
+			lines = []
+			while True:
+				line_nr += 1
+				line = features_file.next()
+				lines.append(line)
+				features.append(self.get_features(line))
+				if sentence['last_line'] == line_nr:
+					yield sentence, features, lines
+					break
+				
+
+	def iter_samples(self):
+		"""Iterates over the features of the candidates in the samples file"""
 		line_nr = 0
-		with open(self.samples_fn, 'r') as samples_file:
-			with open(self.features_fn, 'r') as features_file:
-				for cur_sentence, sample in enumerate(samples_file):
+		samples_file = open(self.samples_fn, 'r')
+		features_file = open(self.features_fn, 'r')
+	
+		for cur_sentence, sample in enumerate(samples_file):
+			# Skip empty samples
+			if sample == "\n": continue
 
-					# Get sample
-					sample = map(int, sample.replace("\n","").split(","))
-					
-					# Get features of all candidate translations for this sentence
-					features = []
-					while True:
+			# Get sample
+			sample = map(int, sample.replace("\n","").split(","))
+			
+			# Get features of all candidate translations for this sentence
+			features = []
+			while True:
 
-						# Load the next features
-						line_nr += 1
-						line = features_file.next()
-						features.append(self.get_features(line))
+				# Load the next features
+				line_nr += 1
+				line = features_file.next()
+				features.append(self.get_features(line))
 
-						# Last line of this sentence?
-						if self.sentences[cur_sentence]['last_line'] == line_nr:
-							first_line = self.sentences[cur_sentence]['first_line']
-							sample_feat = [features[s - first_line] for s in sample]
-							for feat1, feat2 in zip(sample_feat[::2], sample_feat[1::2]):
-								yield (feat1, feat2)
-							break
+				# Last line of this sentence?
+				if self.sentences[cur_sentence]['last_line'] == line_nr:
+					first_line = self.sentences[cur_sentence]['first_line']
+					sample_feat = [features[s - first_line] for s in sample]
+					for feat1, feat2 in zip(sample_feat[::2], sample_feat[1::2]):
+						yield (feat1, feat2)
+					break
+
+		samples_file.close()
+		features_file.close()
+
 
 class DefFeatures(Features):
 	def get_features(self, line):

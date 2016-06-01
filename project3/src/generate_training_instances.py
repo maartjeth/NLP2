@@ -11,30 +11,30 @@ instance and one for negative instances.
 from Features import *
 
 # Sample size in the PRO
-sample_size = "10"
+sample_size = "100"
 
-name = "defdata"
+name = "val-meteor"
 
 ##############################################################
 
 # Again, we don't need instances for the test set
-kind = "dev"
+kind = "val"
 
 # Output file for positive and negative classification instances
 pos_instances_fn = "../data-%s/classification/%s-pos-instances-%s.txt" % (kind,name,sample_size)
 neg_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind,name,sample_size)
 
 # Samples	
-samples_fn = '../data-%s/samples/%s-samples-%s.txt' % (kind, kind, sample_size)
+samples_fn = '../data-dev/%s-samples-%s.txt' % (kind, sample_size)
 
 # File with 1000best training instances
-candidates_fn = "../data/nlp2-%s.1000best" % kind
+candidates_fn = "../data/nlp2-dev.1000best"# % kind
 
 # File with all meteor scores
-scores_fn = "../data-%s/eval/%s-meteor.txt" % (kind, kind)
+scores_fn = "../data-%s/%s-meteor-1.txt" % (kind, kind)
 
 # Sentences information
-sentences_fn = '../data-%s/%s-sentences.json' % (kind, kind)
+sentences_fn = '../data-dev/dev-sentences.json'
 sentences = json.load(open(sentences_fn,'r'))
 
 # Other feature files

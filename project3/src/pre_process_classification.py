@@ -12,15 +12,18 @@ This should not take very long: ~6s for sample size 100
 sample_size = 100
 
 # Name of the model
-name = "defdata"
+name = "val-meteor"
+
+# Test/dev/val
+kind = "val"
 
 # Input files
-pos_instances_fn = "../data-dev/classification/%s-neg-instances-%s.txt" %  (name, sample_size)
-neg_instances_fn = "../data-dev/classification/%s-neg-instances-%s.txt" %  (name, sample_size)
+pos_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind, name, sample_size)
+neg_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind, name, sample_size)
 
 # Output files
-instances_output_fn = '../data-dev/classification/%s-instances-%s.pickle' %  (name, sample_size)
-labels_output_fn = '../data-dev/classification/%s-labels-%s.pickle' % (name, sample_size)
+instances_output_fn = '../data-%s/classification/%s-instances-%s.pickle' % (kind, name, sample_size)
+labels_output_fn = '../data-%s/classification/%s-labels-%s.pickle' % (kind, name, sample_size)
 
 ###################################################################
 

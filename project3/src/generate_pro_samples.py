@@ -16,7 +16,7 @@ import json
 import random
 
 # Size of the sample
-sample_size = 20
+sample_size = 100
 
 #################################################################
 
@@ -25,16 +25,25 @@ kind = "dev"
 
 # Filenames 
 output_fn = "../data-%s/samples/%s-samples-%s.txt" % (kind,kind,sample_size)
-sentences_fn = '../data-%s/%s-sentences.json' % (kind,kind)
+sentences_fn = '../data-dev/dev-sentences.json' #% (kind,kind)
 
 # Load sentences data
 sentences = json.load(open(sentences_fn, 'r'))
 
-# Construct samples
-# samples = []
+## For validation:
+# val_sentences = json.load(open('../data-val/val-sentences.json','r'))
+# val_sentences = [s['sentence'] for s in val_sentences]
+
+# # Construct samples
+# # samples = []
 with open(output_fn, 'w') as output_file:
 	for sentence in sentences:
-		
+
+		## For validation:
+		# if sentence['sentence'] in val_sentences:
+		# 	output_file.write("\n")
+		# 	continue
+
 		# Now sample pairs of candidates (so that they are always distinct)
 		sample = []
 		lines = range(sentence['first_line'], sentence['last_line']+1)

@@ -3,15 +3,15 @@ Unsplits a set of pars. That is, it concatenates the
 parts into one new file.
 """
 # Kind of file
-kind = 'test'
+kind = 'dev'
 
 # Number of parts
-num_parts = 5
-
-#############################################
+num_parts = 6
 
 input_fn = "../data-%s/eval/%s-meteor-part%s.txt"
 output_fn = "../data-%s/eval/%s-meteor.txt"
+
+#############################################
 
 with open(output_fn % (kind,kind), 'w') as output_file:
 	for part in range(1,num_parts+1):
