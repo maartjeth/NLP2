@@ -4,11 +4,13 @@ Generates linguistic features.
 """
 
 kind = "test"
-num_parts = 6
+#num_parts = 6
+num_parts = 1
 
 # Filename of the parse
-#parse_fn = '../data-dev/parse/translations-part%s.parse'
-parse_fn = '../output/translation.1.parse' # FOR TESTING!!!!!!
+parse_fn = '../data-dev/parse/translations-part%s.parse'
+parse_fn = '../data-dev/parse/parse-demo%s.parse'
+#parse_fn = '../output/translation.1.parse' # FOR TESTING!!!!!!
 
 
 # Feature vocabularies (inputs)
@@ -30,6 +32,7 @@ word_count_features_fn = "../data-%s/ling-features/wordcount-features.txt" % kin
 es_features_fn = "../data-%s/ling-features/es-features.txt" % kind
 art_pl_features_fn = "../data-%s/ling-features/artpl-features.txt" % kind
 prep_art_features_fn = "../data-%s/ling-features/prepart-features.txt" % kind
+ratio_features_fn = "../data-%s/ling-features/ratio-features.txt" % kind
 
 ##############################################################
 
@@ -66,8 +69,8 @@ for part in range(1, num_parts + 1):
 	print "Starting with part %s..." % part
 
 	# Open all files
-	#parsed_file = open(parse_fn % part, 'r')
-	parsed_file = open(parse_fn, 'r') # FOR TESTING!!!!!
+	parsed_file = open(parse_fn % part, 'r')
+	#parsed_file = open(parse_fn, 'r') # FOR TESTING!!!!!
 	tag_features_file = open(tag_features_fn, 'w');
 	bigram_features_file = open(bigram_features_fn, 'w');
 	art_features_file = open(art_features_fn, 'w');
@@ -76,6 +79,7 @@ for part in range(1, num_parts + 1):
 	es_features_file = open(es_features_fn, 'w');
 	art_pl_features_file = open(art_pl_features_fn, 'w');
 	prep_art_features_file = open(prep_art_features_fn, 'w');
+	ratio_features_file = open(ratio_features_fn, 'w');
 
 	lines = []
 	while True:
@@ -99,6 +103,7 @@ for part in range(1, num_parts + 1):
 		es_ids = []
 		artpl_ids = []
 		prepart_ids = []
+		ratios_ids = []
 		
 		# Now loop through the candidate block and store the features
 		# Note that this is very similar to when you generate the vocabularies
@@ -160,7 +165,7 @@ for part in range(1, num_parts + 1):
 			if word_form == 'es' and morph[:3] == 'nom':
 				es_feature = ('es', head_info[1])
 				try:
-					es_ids.append(es2ids[es_feature])
+					es_ids.append(es2id[es_feature])
 				except KeyError: pass
 
 			# eine / die + plural (to get at least a grasp on whether the plural goes well)
@@ -190,17 +195,34 @@ for part in range(1, num_parts + 1):
 			# ratio male/female/neuter
 			if 'masc' in morph:
 				total_masc += 1
-			if 'fem' in morph: # TODO: check if it's really called fem
+			if 'fem' in morph: 
 				total_fem += 1
 			if 'neut' in morph:
 				total_neut += 1
 
-		ratio_sg_pl = float(total_sg / total_pl) # TODO: add these 4 lines as feature
-		ratio_masc = float(total_masc / (total_fem + total_neut))
-		ratio_fem = float(total_fem / (total_masc + total_neut))
-		ratio_neut = float(total_neut / (total_masc + total_fem))
+		# TODO : float inf correct choice?
+		if total_pl > 0:
+			ratio_sg_pl = float(total_sg / total_pl) # TODO: add these 4 lines as feature
+		else:
+			ratio_sg_pl = float("inf")
 
-			
+		if (total_fem + total_neut) > 0:
+			ratio_masc = float(total_masc / (total_fem + total_neut))
+		else:
+			ratio_masc = float("inf")
+		if (total_masc + total_neut) > 0:
+			ratio_fem = float(total_fem / (total_masc + total_neut))
+		else:
+			ratio_fem = float("inf")
+		if (total_masc + total_fem) > 0:
+			ratio_neut = float(total_neut / (total_masc + total_fem))
+		else:
+			ratio_neut = float("inf")
+
+		ratios_ids.append(ratio_sg_pl)
+		ratios_ids.append(ratio_masc)
+		ratios_ids.append(ratio_fem)
+		ratios_ids.append(ratio_neut)			
 
 		# Remove duplicates and sort (cause, hey, why not?) # WHY ARE THERE DUPLICATES AT ALL?
 		# 100% zeker dat we een vector per candidate hebben en niet per meer?
@@ -222,6 +244,7 @@ for part in range(1, num_parts + 1):
 		es_features_file.write(ids2str(es_ids) + "\n")
 		art_pl_features_file.write(ids2str(artpl_ids) + "\n")
 		prep_art_features_file.write(ids2str(prepart_ids) + "\n")
+		ratio_features_file.write(ids2str(ratios_ids) + "\n")
 		
 		# reset
 		lines = []
@@ -236,5 +259,6 @@ for part in range(1, num_parts + 1):
 	es_features_file.close()
 	art_pl_features_file.close()
 	prep_art_features_file.close()
+	ratio_features_file.close()
 
 

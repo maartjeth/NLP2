@@ -1,7 +1,7 @@
 from Helper import *
 from sklearn import svm
 
-def train_svm(self, data_vecs, labels):
+def train_svm(data_vecs, labels):
 	""" Train the linear classification model. Here LinearSVC from Scikit is used.
 
 		Input: 
@@ -17,14 +17,16 @@ def train_svm(self, data_vecs, labels):
 	clf = svm.LinearSVC()
 	clf.fit(data_vecs, labels)
 	weights = clf.coef_
+	dec=clf.decision_function()
+	print dec
 
 	return weights
 
-Helper.train_svm = train_svm
+#Helper.train_svm = train_svm
 
 if __name__ == '__main__':
-	H = Helper()
+	#H = Helper()
 	X = [[0, 0, 0], [1, 1, 1]]
 	y = [0, 1]
-	weights = H.train_svm(X, y)
+	weights = train_svm(X, y)
 	print weights
