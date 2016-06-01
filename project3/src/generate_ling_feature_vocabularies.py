@@ -27,8 +27,8 @@ art_voc_fn = "../data-%s/ling-features/article-vocabulary.pickle" % kind
 prep_voc_fn = "../data-%s/ling-features/preposition-vocabulary.pickle" % kind
 word_count_voc_fn = "../data-%s/ling-features/wordcount-vocabulary.pickle" % kind
 es_voc_fn = "../data-%s/ling-features/es-vocabulary.pickle" % kind
-art_pl_fn = "../data-%s/ling-features/artpl-vocabulary.pickle" % kind
-prep_art_fn = "../data-%s/ling-features/prepart-vocabulary.pickle" % kind
+art_pl_voc_fn = "../data-%s/ling-features/artpl-vocabulary.pickle" % kind
+prep_art_voc_fn = "../data-%s/ling-features/prepart-vocabulary.pickle" % kind
 
 ##############################################################
 
@@ -191,9 +191,9 @@ with open(word_count_voc_fn, 'wb') as file:
 with open(es_voc_fn, 'wb') as file:
 	pickle.dump(es_features, file, pickle.HIGHEST_PROTOCOL)
 
-with open(art_pl_fn, 'wb') as file:
+with open(art_pl_voc_fn, 'wb') as file:
 	pickle.dump(art_pl_features, file, pickle.HIGHEST_PROTOCOL)
 
-with open(prep_art_fn, 'wb') as file:
+with open(prep_art_voc_fn, 'wb') as file:
 	pickle.dump(prep_art_features, file, pickle.HIGHEST_PROTOCOL)
 
