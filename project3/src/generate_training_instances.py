@@ -8,7 +8,7 @@ with every line corresponding to a candidate.
 The resulting feature vectors are written to two files: one for positive
 instance and one for negative instances.
 """
-from CandidateFeatures import *
+from Features import *
 
 # Sample size in the PRO
 sample_size = "10"
@@ -44,14 +44,14 @@ sentences = json.load(open(sentences_fn,'r'))
 ######### FEATURE OBJECTS ################################
 # Feature objects. Add as many as you like...
 #
-def_features = DefCandidateFeatures(candidates_fn, samples_fn, sentences)
+def_features = DefFeatures(candidates_fn, samples_fn, sentences)
 # ling_features = LinguisticCandidateFeatures(linguistic_features_fn, samples_fn, sentences)
 # ...
 all_features = [def_features] #, ling_feauters, ...
 #####
 
 # A object with all METEOR scores
-scores = CandidateScores(scores_fn, samples_fn, sentences)
+scores = Scores(scores_fn, samples_fn, sentences)
 
 def flatten(list_):
 	return [item for sublist in list_ for item in sublist]

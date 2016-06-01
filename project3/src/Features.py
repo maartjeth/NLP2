@@ -2,8 +2,9 @@ from itertools import izip
 import json
 import numpy as np
 import re
+import pickle as pickle
 
-class CandidateFeatures:
+class Features:
 	"""
 	This class allows you retrieve all candidate features in 
 	a memory-efficiant fashion. It reads all candidates of a
@@ -61,7 +62,7 @@ class CandidateFeatures:
 								yield (feat1, feat2)
 							break
 
-class DefCandidateFeatures(CandidateFeatures):
+class DefFeatures(Features):
 	def get_features(self, line):
 		line = line.replace("\n","")
 		sentence, r_translation, r_features, \
@@ -77,12 +78,49 @@ class DefCandidateFeatures(CandidateFeatures):
 
 		return features
 
-class CandidateScores(CandidateFeatures):
+class Scores(Features):
 	def get_features(self, line):
 		return [float(line.replace("\n", ""))]
 
-# class LinguisticCandidateFeatures(CandidateFeatures):
+
+class SparseFeatures(Features):
+	def __init__(self, voc_size, *args):
+		Features.__init__(self, *args)
+		self.voc_size = voc_size
+
+	def get_features(self, line):
+		features = np.zeros(self.voc_size, dtype=int)
+		indices = map(int, line.replace("\n", "").split(","))
+		features[indices] = 1
+		return features
+
+def get_voc_size(voc_fn):
+	with open(voc_fn, 'rb') as file:
+		voc = pickle.load(file)
+		return len(voc)
+	
+# class LinguisticFeatures(Features):
 # 	def get_features(self, line):
 		# Code to process a line
-	
+		
+# if __name__ == "__main__":
 
+# 	kind, sample_size = "dev", 10
+
+# 	# Samples	
+# 	samples_fn = '../data-%s/samples/%s-samples-%s.txt' % (kind, kind, sample_size)
+
+# 	# Sentences information
+# 	sentences_fn = '../data-%s/%s-sentences.json' % (kind, kind)
+# 	sentences = json.load(open(sentences_fn,'r'))
+	
+# 	# File with 1000best training instances
+# 	features_voc_fn = "../data-%s/ling-features/bigram-vocabulary.pickle" % kind
+# 	features_fn = "../data-%s/ling-features/bigram-features.txt" % kind
+# 	feature_voc_size = get_voc_size(features_voc_fn)
+# 	f = SparseFeatures(feature_voc_size, features_fn, samples_fn, sentences)
+
+# 	for i, feat in enumerate(f):
+# 		if i>10: break
+# 		print list(feat[0])
+# 		len(feat[0])
