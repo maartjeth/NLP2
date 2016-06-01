@@ -10,6 +10,7 @@ num_parts = 6
 #parse_fn = '../data-dev/parse/translations-part%s.parse'
 parse_fn = '../output/translation.1.parse' # FOR TESTING!!!!!!
 
+
 # Feature vocabularies (inputs)
 tag_voc_fn = "../data-%s/ling-features/tag-vocabulary.pickle" % kind
 bigram_voc_fn = "../data-%s/ling-features/bigram-vocabulary.pickle" % kind
