@@ -9,7 +9,7 @@ num_parts = 1
 
 # Filename of the parse
 parse_fn = '../data-dev/parse/translations-part%s.parse'
-parse_fn = '../data-dev/parse/parse-demo%s.parse'
+#parse_fn = '../data-dev/parse/parse-demo%s.parse'
 #parse_fn = '../output/translation.1.parse' # FOR TESTING!!!!!!
 
 
