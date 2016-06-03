@@ -54,13 +54,14 @@ class Features:
 				lines.append(line)
 				features.append(self.get_features(line))
 				if sentence['last_line'] == line_nr:
-					yield sentence, features, lines
+					# yield sentence, features, lines
+					yield features, lines
 					break
 				
 
 	def iter_samples(self):
 		"""Iterates over the features of the candidates in the samples file"""
-		line_nr = 0
+		line_nr = -1
 		samples_file = open(self.samples_fn, 'r')
 		features_file = open(self.features_fn, 'r')
 	

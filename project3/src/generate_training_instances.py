@@ -11,43 +11,54 @@ instance and one for negative instances.
 from Features import *
 
 # Sample size in the PRO
-sample_size = "100"
+sample_size = 100
 
-name = "val-meteor"
+name = "def-features"
 
 ##############################################################
 
 # Again, we don't need instances for the test set
-kind = "val"
+kind = "dev"
 
 # Output file for positive and negative classification instances
 pos_instances_fn = "../data-%s/classification/%s-pos-instances-%s.txt" % (kind,name,sample_size)
 neg_instances_fn = "../data-%s/classification/%s-neg-instances-%s.txt" % (kind,name,sample_size)
 
 # Samples	
-samples_fn = '../data-dev/%s-samples-%s.txt' % (kind, sample_size)
+samples_fn = '../data-dev/samples/%s-samples-%s.txt' % (kind, sample_size)
 
 # File with 1000best training instances
 candidates_fn = "../data/nlp2-dev.1000best"# % kind
 
 # File with all meteor scores
-scores_fn = "../data-%s/%s-meteor-1.txt" % (kind, kind)
+scores_fn = "../data-dev/eval/dev-meteor.txt"# % (kind, kind)
 
 # Sentences information
 sentences_fn = '../data-dev/dev-sentences.json'
 sentences = json.load(open(sentences_fn,'r'))
 
 # Other feature files
-# linguistic_features_fn = "../data-dev/ling-features/dev-ling-features.txt"
+bigrams_voc_fn = "../data-%s/features/bigram-vocabulary.pickle" % kind
+bigrams_fn = "../data-dev/features/bigram-features.txt"
+tags_voc_fn = "../data-%s/features/tag-vocabulary.pickle" % kind
+tags_fn = "../data-dev/features/tag-features.txt"
 # ...
 
+## Get vocabulary sizes
+bigrams_voc_size = get_voc_size(bigrams_voc_fn)
+tags_voc_size = get_voc_size(tags_voc_fn)
+
 ######### FEATURE OBJECTS ################################
-# Feature objects. Add as many as you like...
+# Feature objects. Add as many as you like... 
+# BUT: ALWAYS STICK TO THIS ORDER! (Only add things at the end)
 #
 def_features = DefFeatures(candidates_fn, samples_fn, sentences)
-# ling_features = LinguisticCandidateFeatures(linguistic_features_fn, samples_fn, sentences)
+# bigrams = SparseFeatures(bigrams_voc_size, bigrams_fn, samples_fn, sentences)
+# tags = SparseFeatures(tags_voc_size, tags_fn, samples_fn, sentences)
+
 # ...
-all_features = [def_features] #, ling_feauters, ...
+all_features = [def_features]
+# all_features = [def_features, bigrams, tags] #, ling_feauters, ...
 #####
 
 # A object with all METEOR scores

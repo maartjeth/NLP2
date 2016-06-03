@@ -42,24 +42,25 @@ def_features = DefFeatures(candidates_fn, '', sentences)
 sentence_ranking_file = open(sentence_ranking_fn, 'w')
 best_translations_file = open(best_translations_fn, 'w')
 
-for i, (sentence, features, lines) in enumerate(def_features.iter_sentences()):
+for i, (features) in enumerate(def_features.iter_sentences()):
 	# if i>=2: break
 	# 
 	if i % 100 == 0: print "Done with sentence %s" % i
+	sentence = sentences[i]
 
 	# Calculate the scores of the sentence
 	scores = weights.dot(np.array(features).T)
 
 	# Get the ranking.
 	# Note that argsort returns the lowest score first
-	ranking = np.argsort(scores)[::-1]
+	ranking = np.argsort(scores)#[::-1]
 	sentence_ranking_file.write(ids2str(ranking) + "\n")
 	
 	# Extract the best translation
-	best = lines[ranking[0]]
-	parts = re.split(" \|\d+-\d+\| ", best.split(" ||| ")[1])
-	translation = " ".join(parts)
-	best_translations_file.write(translation + "\n")
+	# best = lines[ranking[0]]
+	# parts = re.split(" \|\d+-\d+\| ", best.split(" ||| ")[1])
+	# translation = " ".join(parts)
+	# best_translations_file.write(translation + "\n")
 	
 	
 sentence_ranking_file.close()

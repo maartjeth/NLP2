@@ -24,14 +24,14 @@ sample_size = 100
 kind = "dev"
 
 # Filenames 
-output_fn = "../data-%s/samples/%s-samples-%s.txt" % (kind,kind,sample_size)
+output_fn = "../data-%s/samples/%s-samples-%s.txt" 	% (kind,kind,sample_size)
 sentences_fn = '../data-dev/dev-sentences.json' #% (kind,kind)
 
 # Load sentences data
 sentences = json.load(open(sentences_fn, 'r'))
 
 ## For validation:
-# val_sentences = json.load(open('../data-val/val-sentences.json','r'))
+# val_sentences = json.load(open('../data-dev/val-sentences.json','r'))
 # val_sentences = [s['sentence'] for s in val_sentences]
 
 # # Construct samples
