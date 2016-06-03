@@ -15,7 +15,7 @@ class Features:
 	which extracts the features from a line in the file.
 	"""
 
-	def __init__(self, features_fn, samples_fn, sentences):
+	def __init__(self, features_fn, samples_fn, sentences, n_poly=None):
 		"""
 		features_fn: a file with features of every candidate. 
 		samples_fn: a file with all samples
@@ -25,6 +25,7 @@ class Features:
 		self.features_fn = features_fn
 		self.samples_fn = samples_fn
 		self.sentences = sentences
+		self.n_poly = n_poly
 		
 	def __iter__(self):
 		self.sample_features = self.iter_samples()
@@ -93,6 +94,7 @@ class Features:
 
 
 class DefFeatures(Features):
+
 	def get_features(self, line):
 		line = line.replace("\n","")
 		sentence, r_translation, r_features, \
@@ -106,12 +108,15 @@ class DefFeatures(Features):
 			feat = map(float, parts[j+1].split())
 			features += feat
 
+		if poly != None:
+			poly = PolynominalFeatures(self.n_poly)
+			features = poly.fit_transform(features)
+		
 		return features
 
 class Scores(Features):
 	def get_features(self, line):
 		return [float(line.replace("\n", ""))]
-
 
 class SparseFeatures(Features):
 	def __init__(self, voc_size, *args):
@@ -128,6 +133,8 @@ def get_voc_size(voc_fn):
 	with open(voc_fn, 'rb') as file:
 		voc = pickle.load(file)
 		return len(voc)
+
+
 	
 # class LinguisticFeatures(Features):
 # 	def get_features(self, line):

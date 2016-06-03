@@ -15,8 +15,6 @@ sample_size = "100"
 
 name = "val-meteor"
 
-n_poly = 2 # number of polynomials you want
-
 ##############################################################
 
 # Again, we don't need instances for the test set
@@ -46,7 +44,7 @@ sentences = json.load(open(sentences_fn,'r'))
 ######### FEATURE OBJECTS ################################
 # Feature objects. Add as many as you like...
 #
-def_features = DefFeatures(candidates_fn, samples_fn, sentences)
+def_features = DefFeatures(candidates_fn, samples_fn, sentences, 3)
 # ling_features = LinguisticCandidateFeatures(linguistic_features_fn, samples_fn, sentences)
 # ...
 all_features = [def_features] #, ling_feauters, ...
@@ -62,10 +60,6 @@ def flatten(list_):
 pos_instances_file = open(pos_instances_fn, 'w')
 neg_instances_file = open(neg_instances_fn, 'w')
 for i, features in enumerate(izip(scores, *all_features)):
-
-	# Polynomial combination of features
-	poly = PolynomialFeatures(n_poly)
-	features = poly.fit_transform(features)
 
 	if i % 5000 == 0: print "%s Candidates done" % str(i).zfill(7)
 
