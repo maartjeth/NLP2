@@ -335,7 +335,7 @@ class Model:
 			
 			# Get the ranking.
 			# Note that argsort returns the lowest score first
-			ranking = np.argsort(scores)#[::-1]
+			ranking = np.argsort(scores)[::-1]
 			ranking_file.write(ids2str(ranking) + "\n")
 
 			# Extract the best translation

@@ -18,7 +18,7 @@ for sample_size in [20]:#,15,20,40,80,100,160,320,640]:
 	print
 
 	samples_fn = "{root}/models/{name}/val-samples-{sample_size}.txt"
-	M = Model("val-sample-size-"+str(sample_size)+"-2", kind="dev", sample_size=sample_size, features=['def'], samples_fn=samples_fn)
+	M = Model("val-sample-size-"+str(sample_size)+"-3", kind="dev", sample_size=sample_size, features=['def'], samples_fn=samples_fn)
 	M.generate_training_instances()
 	M.fit()
 	# M.load()
