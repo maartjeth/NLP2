@@ -3,6 +3,7 @@ import json
 import numpy as np
 import re
 import pickle as pickle
+from sklearn import svm
 
 class Features:
 	"""
@@ -108,9 +109,29 @@ class DefFeatures(Features):
 			feat = map(float, parts[j+1].split())
 			features += feat
 
+class CombineFeatures(Features):
+
+	def get_features(self, line):
+		kind = 'dev'
+		line = line.replace("\n","")
+		sentence, r_translation, r_features, \
+			system_score, r_alignment, source = line.split(" ||| ")
+
+		features = []
+		parts = re.split("\s?([A-Za-z0-9]+)=\s?", r_features)[1:]
+		for j in range(0, len(parts) - 1, 2):
+			name = parts[j]
+			if name in ['InputFeature0']: continue
+			feat = map(float, parts[j+1].split())
+			features += feat
+
 		if poly != None:
-			poly = PolynominalFeatures(self.n_poly)
+			poly = PolynomialFeatures(self.n_poly)
 			features = poly.fit_transform(features)
+
+		combined_features_fn = "../data-%s/combined-features%s.txt" % (kind, self.n_poly)
+		with open(combined_features_fn, 'a') as comb_f_f:
+			comb_f_f.write(features)
 		
 		return features
 
