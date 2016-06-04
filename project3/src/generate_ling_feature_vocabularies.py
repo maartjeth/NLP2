@@ -47,10 +47,12 @@ prep_art_features = Counter()
 # ... 
 
 # All prepositions TODO: add the non ascii characters!!!
-preps = ['nach', 'gegen', 'an', 'hinter', 'neben', 'zwischen', 'vor', 
-		'in', 'zu', 'entlang', 'ohne', 'auf', 'aus', 'ausser', 'mit', 
-		'unter', 'bis', 'von', 'bei', 'seit', 'um', 'durch']
-preps = dict([(prep, None) for prep in preps])
+with open('../data/prep.txt', 'r') as preps_f:
+	all_preps = preps_f.readline().split(" ")
+	all_preps = list(all_preps)
+	#print all_preps
+	preps = dict([(prep, None) for prep in all_preps])
+	#print preps
 
 # All articles
 articles = ['die', 'des', 'dem', 'den', 'der', 'das']
