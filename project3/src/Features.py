@@ -43,7 +43,7 @@ class Features:
 			for line in features_file:
 				yield self.get_features(line)
 
-	def iter_sentences(self):
+	def iter_sentence_features(self):
 		features_file = open(self.features_fn, 'r')
 		line_nr = -1
 		for sentence in self.sentences:
@@ -56,7 +56,7 @@ class Features:
 				features.append(self.get_features(line))
 				if sentence['last_line'] == line_nr:
 					# yield sentence, features, lines
-					yield features, lines
+					yield features
 					break
 				
 	def iter_samples(self):
@@ -71,7 +71,9 @@ class Features:
 
 			# Get sample
 			sample = map(int, sample.replace("\n","").split(","))
-			
+			if len(sample) == 0:
+				print sample
+
 			# Get features of all candidate translations for this sentence
 			features = []
 			while True:
@@ -117,6 +119,19 @@ class DefFeatures(Features):
 		# 	return list(combinations[0])
 
 		return features
+
+	def iter_sentence_lines(self):
+		features_file = open(self.features_fn, 'r')
+		line_nr = -1
+		for sentence in self.sentences:
+			lines = []
+			while True:
+				line_nr += 1
+				line = features_file.next()
+				lines.append(line)
+				if sentence['last_line'] == line_nr:
+					yield lines
+					break
 
 class Scores(Features):
 	def get_features(self, line):

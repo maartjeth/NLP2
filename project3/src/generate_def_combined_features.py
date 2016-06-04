@@ -22,7 +22,7 @@ polyfeat = PolynomialFeatures(degree)
 def_features = DefFeatures(candidates_fn, '', sentences)
 combined_file = open(combined_fn, 'w')
 for i, features in enumerate(def_features.iter()):
-	# if i>20000: break
+	# if i>2: break
 	if i % 5000 == 0: print "  {i:>6} candidates done".format(i=i)
 
 	features = polyfeat.fit_transform([features])[0]

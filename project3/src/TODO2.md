@@ -13,8 +13,8 @@
 * `full-grammar`: all features except `artpl`, `es`, `prep`, `prepart`, `art`, `wordcount`, `ratio`
 * `full-combined`: all features except `def-combined`
 
-* default features uitschrijven test / dev --> handig; misschien 15min?
-* validation experiments: 1u
-* Combined features opnieuw, met linebreaks: < 60min. 
+* KLAAR: default features uitschrijven test / dev --> handig; misschien 15min?
+* KLAAR: validation experiments: 1u
+* KLAAR: Combined features opnieuw, met linebreaks: < 60min. 
 * pipeline schrijven: 1min
 * 

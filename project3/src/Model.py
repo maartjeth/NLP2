@@ -198,10 +198,17 @@ class Model:
 		sentences = self.get_sentences(kind)
 		features = []
 
-		if 'def' in self.used_features:
-			features_fn = self.fn('candidates', kind=kind)
-			def_feat = DefFeatures(features_fn, samples_fn, sentences)
-			features.append(def_feat)
+		# if 'def' in self.used_features:
+		# 	features_fn = self.fn('candidates', kind=kind)
+		# 	def_feat = DefFeatures(features_fn, samples_fn, sentences)
+		# 	features.append(def_feat)
+		
+		for feature in 'def ratios art wordcount def-combined'.split():
+			if feature not in self.used_features: continue
+
+			features_fn = self.fn('features', feature=feature, kind=kind)
+			dense_feat = DenseFeatures(features_fn, samples_fn, sentences)
+			features.append(dense_feat)
 
 		# Get sparse features
 		for feature in 'tag bigram prep es artpl prepart'.split():
@@ -211,13 +218,6 @@ class Model:
 			features_fn = self.fn('features', feature=feature, kind=kind)
 			sparse_feat = SparseFeatures(voc_size, features_fn, samples_fn, sentences)
 			features.append(sparse_feat)
-
-		for feature in 'ratios art wordcount def-combined'.split():
-			if feature not in self.used_features: continue
-
-			features_fn = self.fn('features', feature=feature, kind=kind)
-			dense_feat = DenseFeatures(features_fn, samples_fn, sentences)
-			features.append(dense_feat)
 
 		return features
 
@@ -231,17 +231,20 @@ class Model:
 		# Build random ordering
 		with self.open('samples') as file:
 			num_lines = 0
-			for _ in file: num_lines += 1
+			for line in file:
+				if line != "\n": num_lines += 1
+
 		num_candidates =  num_lines * self.sample_size * 2
 		ordering = range(num_candidates)
 		random.shuffle(ordering)
+		self.log('  Okay.  %s training instances will be generated' % num_candidates)
 		
 		# COO matrix!
 		rows, cols, vals = [], [], []
 		labels = np.zeros(num_candidates)
 		for i, features in enumerate(izip(scores, *feature_iterators)):	
-			if i>6000: break
-			if i % 5000 == 0: self.log("  {i:>6}/{num_candidates} candidates done".format(i=i, num_candidates=num_candidates))
+			# if i>6000: break
+			if i % 2500 == 0: self.log("  {i:>6}/{num_candidates} candidates done".format(i=i*2, num_candidates=num_candidates))
 
 			# Unpack the features
 			cand1 = flatten([feat[0] for feat in features])
@@ -250,7 +253,7 @@ class Model:
 			score2 = cand2[0]
 			cand1 = np.array(cand1[1:])
 			cand2 = np.array(cand2[1:])
-			
+
 			# Find positive and negative instance
 			if score1 > score2:
 				winner, loser = cand1, cand2
@@ -272,7 +275,9 @@ class Model:
 			rows += [pos_index] * len(pos_non0) 	+ [neg_index] * len(neg_non0)
 			cols += pos_non0.tolist() 				+ neg_non0.tolist()
 			vals += pos_instance[pos_non0].tolist() + neg_instance[neg_non0].tolist()
-
+		
+		self.log("  {i:>6}/{num_candidates} candidates done".format(i=i*2, num_candidates=num_candidates))
+		
 		self.log("  Sparsifying training instances...")
 		instances = coo_matrix((vals, (rows, cols)), shape=(len(ordering), len(pos_instance)))
 
@@ -303,9 +308,9 @@ class Model:
 	def fit(self):
 		"""Fits a Linear SVC model to the training instances"""
 		instances, labels = self.get_training_instances()
-		# labels = labels.toarray().flatten()
+		
 		self.log("Fitting model...")
-		self.model = svm.LinearSVC()
+		self.model = svm.LinearSVC(dual=False, fit_intercept=True)
 		self.model.fit(instances, labels)
 		self.weights = self.model.coef_
 
@@ -332,42 +337,48 @@ class Model:
 		ranking_file = self.open('ranking', test_name=test_name, how="w")
 		best_translations_file = self.open('best_translations', test_name=test_name, how="w")
 
-		sentence_features = []
+		# Default features, voor de lines
+		candidates_fn = self.fn('candidates', kind=kind)
+		sentences = self.get_sentences(kind=kind)
+		def_features = DefFeatures(candidates_fn, '', sentences)
+
+		# All other iterators
+		sentence_features = [def_features.iter_sentence_lines()]
 		for features in self.get_features(kind=kind):
-			sentence_features.append(features.iter_sentences())
+			sentence_features.append(features.iter_sentence_features())
 
 		translation_expr = re.compile(" \|\d+-\d+\| ")
 		exclude = sorted(exclude)[::-1]
 
 		for i, sentence_features in enumerate(izip(*sentence_features)):
-			if i % 100 == 0: self.log("  {:>4} candidates done".format(i))
-			# if i>=3: break
+			if i % 100 == 0: self.log("  {:>4} sentences done".format(i))
+			# if i>3: break
 
 			# Skip sentences that we have to exclude
 			if len(exclude) > 0 and i == exclude[-1]:
 				exclude.pop()
 				continue	
-			
-			# Note that:
-			# features_i, lines_i = sentence_features[i]
-			candidate_lines = sentence_features[0][1]
+
+			# The first iterator contains the lines, the rest are features
+			lines = sentence_features[0]
+			num_candidates = len(lines)
 
 			# combine lists of features
 			features = []
-			for i in range(len(candidate_lines)):
-				flat = flatten([ feat[0][i] for feat in sentence_features ]) 
+			for i in range(num_candidates):
+				flat = flatten([ feat[i] for feat in sentence_features[1:] ])
 				features.append(flat)
-
+			
 			# Calculate the scores of the sentence
 			scores = self.weights.dot(np.array(features).T)[0]
-			
+
 			# Get the ranking.
 			# Note that argsort returns the lowest score first
 			ranking = np.argsort(scores)[::-1]
 			ranking_file.write(ids2str(ranking) + "\n")
 
 			# Extract the best translation
-			best = candidate_lines[ranking[0]]
+			best = lines[ranking[0]]
 			parts = best.split(" ||| ")
 			words = translation_expr.split(parts[1])
 			translation = " ".join(words)
