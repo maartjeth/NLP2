@@ -27,6 +27,6 @@ for i, features in enumerate(def_features.iter()):
 
 	features = polyfeat.fit_transform([features])[0]
 	features = np.round(features, 5)
-	combined_file.write( ",".join(map(str, features)) )
+	combined_file.write( ",".join(map(str, features)) + "\n" )
 
 combined_file.close()
