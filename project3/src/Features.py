@@ -3,6 +3,7 @@ import json
 import numpy as np
 import re
 import pickle as pickle
+from sklearn.preprocessing import PolynomialFeatures
 
 class Features:
 	"""
@@ -58,7 +59,6 @@ class Features:
 					yield features, lines
 					break
 				
-
 	def iter_samples(self):
 		"""Iterates over the features of the candidates in the samples file"""
 		line_nr = -1
@@ -92,8 +92,13 @@ class Features:
 		samples_file.close()
 		features_file.close()
 
-
 class DefFeatures(Features):
+	def __init__(self, features_fn, samples_fn, sentences):
+		Features.__init__(self, features_fn, samples_fn, sentences)
+
+		# self.degree = degree
+		# self.PolyFeat = PolynomialFeatures(self.degree)
+
 	def get_features(self, line):
 		line = line.replace("\n","")
 		sentence, r_translation, r_features, \
@@ -107,12 +112,15 @@ class DefFeatures(Features):
 			feat = map(float, parts[j+1].split())
 			features += feat
 
+		# if self.degree > 0:
+		# 	combinations = self.PolyFeat.fit_transform([features])
+		# 	return list(combinations[0])
+
 		return features
 
 class Scores(Features):
 	def get_features(self, line):
 		return [float(line.replace("\n", ""))]
-
 
 class SparseFeatures(Features):
 	def __init__(self, voc_size, *args):
@@ -121,9 +129,16 @@ class SparseFeatures(Features):
 
 	def get_features(self, line):
 		features = np.zeros(self.voc_size, dtype=int)
-		indices = map(int, line.replace("\n", "").split(","))
-		features[indices] = 1
+		try:
+			indices = map(int, line.replace("\n", "").split(","))
+			features[indices] = 1
+		except ValueError: pass
 		return features
+
+class DenseFeatures(Features):
+	def get_features(self, line):
+		features = line.replace("\n", "").split(",")
+		return map(float, features)
 
 def get_voc_size(voc_fn):
 	with open(voc_fn, 'rb') as file:

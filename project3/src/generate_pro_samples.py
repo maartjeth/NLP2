@@ -25,9 +25,10 @@ kind = "dev"
 
 # Filenames 
 output_fn = "../data-%s/samples/%s-samples-%s.txt" 	% (kind,kind,sample_size)
-sentences_fn = '../data-dev/dev-sentences.json' #% (kind,kind)
+# output_fn = "../data-dev/samples/val-samples-%s-3.txt" 	% sample_size
 
 # Load sentences data
+sentences_fn = '../data-dev/dev-sentences.json'
 sentences = json.load(open(sentences_fn, 'r'))
 
 ## For validation:

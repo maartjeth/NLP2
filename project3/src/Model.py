@@ -1,12 +1,14 @@
 import os
 from Features import *
 import random
+from scipy.sparse import coo_matrix
 from scipy.sparse import csr_matrix
 from sklearn import svm
 from sklearn.externals import joblib
 import cPickle as pickle
 import numpy as np
 from time import time
+import cProfile
 
 class Model:
 
@@ -65,9 +67,6 @@ class Model:
 	# A log
 	__log = ""
 
-	# A list with all feature objects
-	features = []
-
 	# The actual model (classifier) and its feature weights
 	model = None
 	weights = None
@@ -95,12 +94,14 @@ class Model:
 			self.pro_scores_fn = kwargs['pro_scores_fn']
 
 		# Load sentences
-		self.sentences = json.load(self.open('sentences','r'))
-		self.close('sentences')
+		with self.open('sentences','r', kind="dev") as file:
+			self.dev_sentences = json.load(file)
+		with self.open('sentences','r', kind="test") as file:
+			self.test_sentences = json.load(file)
 
 		# Make folders
 		model_dir = self.model_dir.format(**self.opts)
-		if not  os.path.exists(model_dir):
+		if not os.path.exists(model_dir):
 			os.makedirs(model_dir)
 
 		# Log stuff
@@ -186,38 +187,61 @@ class Model:
 		log_file.write(self.__log)
 		log_file.close()
 
-	def init_features(self):
+	def get_sentences(self, kind=None):
+		if kind == None: kind = self.kind
+		return getattr(self, kind + "_sentences")
+
+	def get_features(self, kind=None):
 		"""Initializes a list with all feature objects"""
+		if kind == None: kind = self.kind
 		samples_fn = self.fn('samples')
+		sentences = self.get_sentences(kind)
+		features = []
 
 		if 'def' in self.used_features:
-			def_features = DefFeatures(self.fn('candidates'), samples_fn, self.sentences)
-			self.features.append(def_features)
+			features_fn = self.fn('candidates', kind=kind)
+			def_feat = DefFeatures(features_fn, samples_fn, sentences)
+			features.append(def_feat)
 
-		if 'tag' in self.used_features:
-			voc_size = get_voc_size(self.fn('features_voc', feature='tag'))
-			features_fn = self.fn('features', feature="tag")
-			tag_features = SparseFeatures(voc_size, features_fn, samples_fn, self.sentences)
-			self.features.append(tag_features)
+		# Get sparse features
+		for feature in 'tag bigram prep es artpl prepart'.split():
+			if feature not in self.used_features: continue
 
-		if 'bigram' in self.used_features:
-			voc_size = get_voc_size(self.fn('features_voc', feature="bigram"))
-			features_fn = self.fn('features', feature="bigram")
-			bigram_features = SparseFeatures(voc_size, features_fn, samples_fn, self.sentences)
-			self.features.append( bigram_features )
+			voc_size 	= get_voc_size(self.fn('features_voc', feature=feature))
+			features_fn = self.fn('features', feature=feature, kind=kind)
+			sparse_feat = SparseFeatures(voc_size, features_fn, samples_fn, sentences)
+			features.append(sparse_feat)
+
+		for feature in 'ratios art wordcount def-combined'.split():
+			if feature not in self.used_features: continue
+
+			features_fn = self.fn('features', feature=feature, kind=kind)
+			dense_feat = DenseFeatures(features_fn, samples_fn, sentences)
+			features.append(dense_feat)
+
+		return features
 
 	def generate_training_instances(self):
-		if self.features == []: self.init_features()
+		self.log("Generating training instances")
 
-		self.log("\nGenerating training instances")
-
-		# Load scores for Pro algorithm
-		scores = Scores(self.fn('pro_scores'), self.fn('samples'), self.sentences)
+		# Load features and scores for Pro algorithm
+		feature_iterators = self.get_features()
+		scores = Scores(self.fn('pro_scores'), self.fn('samples'), self.get_sentences())
 		
-		instances = []
-		for i, features in enumerate(izip(scores, *self.features)):	
-			# if i>1000: break
-			if i % 5000 == 0: self.log("  {:>6} Candidates done".format(i))
+		# Build random ordering
+		with self.open('samples') as file:
+			num_lines = 0
+			for _ in file: num_lines += 1
+		num_candidates =  num_lines * self.sample_size * 2
+		ordering = range(num_candidates)
+		random.shuffle(ordering)
+		
+		# COO matrix!
+		rows, cols, vals = [], [], []
+		labels = np.zeros(num_candidates)
+		for i, features in enumerate(izip(scores, *feature_iterators)):	
+			if i>6000: break
+			if i % 5000 == 0: self.log("  {i:>6}/{num_candidates} candidates done".format(i=i, num_candidates=num_candidates))
 
 			# Unpack the features
 			cand1 = flatten([feat[0] for feat in features])
@@ -234,29 +258,34 @@ class Model:
 				winner, loser = cand2, cand1
 			pos_instance = winner - loser
 			neg_instance = loser - winner
+			
+			pos_index = ordering[2*i]
+			neg_index = ordering[2*i+1]
+			
+			# Update labels (negative index is already 0)
+			labels[pos_index] = 1
+			
+			# Store sparse data
+			pos_non0 = pos_instance.nonzero()[0]
+			neg_non0 = neg_instance.nonzero()[0]
 
-			# Store
-			instances.append( [1] + list(pos_instance))
-			instances.append( [0] + list(neg_instance))
-
-		self.log("  Randomizing training instances...")
-		random.shuffle(instances)
+			rows += [pos_index] * len(pos_non0) 	+ [neg_index] * len(neg_non0)
+			cols += pos_non0.tolist() 				+ neg_non0.tolist()
+			vals += pos_instance[pos_non0].tolist() + neg_instance[neg_non0].tolist()
 
 		self.log("  Sparsifying training instances...")
-		instances = np.array(instances)
-		labels = csr_matrix(instances[:,0])
-		instances = csr_matrix(instances[:,1:])
+		instances = coo_matrix((vals, (rows, cols)), shape=(len(ordering), len(pos_instance)))
 
 		self.log("  Storing training instances...")
 		instances_file = self.open('training_instances', 'wb')
 		labels_file = self.open('training_labels', 'wb')
 		pickle.dump(instances, instances_file, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(labels, labels_file, pickle.HIGHEST_PROTOCOL)
-		self.close('training_instances')
-		self.close('training_labels')
+		instances_file.close()
+		labels_file.close()
 
 		# Returning
-		self.log("  Done.")
+		self.log("  Done. Stored %s instances with %s features each." % instances.shape)
 		return instances, labels
 	
 	def get_training_instances(self):
@@ -274,8 +303,7 @@ class Model:
 	def fit(self):
 		"""Fits a Linear SVC model to the training instances"""
 		instances, labels = self.get_training_instances()
-		labels = labels.toarray().flatten()
-		
+		# labels = labels.toarray().flatten()
 		self.log("Fitting model...")
 		self.model = svm.LinearSVC()
 		self.model.fit(instances, labels)
@@ -297,15 +325,15 @@ class Model:
 			self.log("The model could not be loaded...")
 			raise IOError('The model could not be found. Perhaps you have to fit it firt?')
 
-	def rerank(self, test_name, exclude=[]):
-		if self.features == []: self.init_features()
+	def rerank(self, test_name, exclude=[], kind="test"):
 		self.log("Reranking translations...")
+
 		# Open output files
 		ranking_file = self.open('ranking', test_name=test_name, how="w")
 		best_translations_file = self.open('best_translations', test_name=test_name, how="w")
 
 		sentence_features = []
-		for features in self.features:
+		for features in self.get_features(kind=kind):
 			sentence_features.append(features.iter_sentences())
 
 		translation_expr = re.compile(" \|\d+-\d+\| ")
@@ -345,8 +373,8 @@ class Model:
 			translation = " ".join(words)
 			best_translations_file.write(translation + "\n")
 
-		self.close('ranking', test_name=test_name)
-		self.close('best_translations', test_name=test_name)
+		ranking_file.close()
+		best_translations_file.close()
 		self.log("  Done.")
 
 def flatten(list_):
@@ -356,14 +384,16 @@ def ids2str(lst):
 	return ",".join(map(str, lst))
 
 if __name__ == "__main__":
-	M = Model("test", kind="dev", sample_size=100, features=['def', 'tag'])#, 'tag', 'bigram'])
-	# M.generate_training_instances()
-	M.fit()
-	M.load()
-	M.rerank("blabla")#, exclude=[3,0,1,2,5])
-	# print M.open('candidate_scores')
-	# M.close('candidate_scores')
-	# M.open('features', feature="bigrams")
-	# M.print_log()
-	M.write_log()
+	M = Model("test-def-tag-bigram-50", kind="dev", sample_size=50, 
+		# features=['ratios'])
+		features=['def', 'tag', 'wordcount'])#'bigram', 'artpl', 'es', 'prep', 'prepart'])#, 'def-combined-2'])
+	# print M.get_features()
+	M.generate_training_instances()
+	# cProfile.run('M.generate_training_instances()')
+	# M.fit()
+	# M.load()
+	
+	# # # exclude = [i for i in range(len(M.sentences)) if i not in val_sentences]
+	# M.rerank("results")
+	# M.write_log()
 

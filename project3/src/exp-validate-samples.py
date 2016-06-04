@@ -12,16 +12,20 @@ val_sentences = [s['sentence'] for s in val_sentences]
 # 			targets.write(line)
 # targets.close()
 
-for sample_size in [20]:#,15,20,40,80,100,160,320,640]:
-	print "-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+for sample_size in [5]:#,20,40,60,80,100]
+	print "-=" * 20 + '-'
 	print "Starting sample size", sample_size
 	print
 
-	samples_fn = "{root}/models/{name}/val-samples-{sample_size}.txt"
-	M = Model("val-sample-size-"+str(sample_size)+"-3", kind="dev", sample_size=sample_size, features=['def'], samples_fn=samples_fn)
+	samples_fn = "../data-dev/samples/val-samples-{size}.txt".format(size=sample_size)
+	model_name = "val-sample-size-%s" % sample_size
+
+	M = Model(model_name, kind="dev", sample_size=sample_size, 
+		features=['def'], samples_fn=samples_fn)
 	M.generate_training_instances()
 	M.fit()
 	# M.load()
-	exclude = [i for i in range(len(M.sentences)) if i not in val_sentences]
+	exclude = [i for i in range(len(M.get_sentences())) if i not in val_sentences]
 	M.rerank("results", exclude=exclude)
 	M.write_log()
+ 

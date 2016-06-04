@@ -1,7 +1,7 @@
 
 # The root directory
 root=~/Github\ Projects/NLP2/project3
-name="val-sample-size-20-2"
+name="val-sample-size-20-3"
 kind="val"
 # sample_size="-10"
 output_fn="models/$name/$name-best-translations-results.txt"
