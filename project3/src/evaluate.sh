@@ -2,12 +2,12 @@
 # The root directory
 root=~/Github\ Projects/NLP2/project3
 size=100
-name="val-sample-size-$size-3"
+name="baseline"
 kind="val"
 
 # sample_size="-10"
 output_fn="models/$name/$name-best-translations-results.txt"
-target_fn="data-dev/val-targets.txt"
+target_fn="data/nlp2-test.de"
 results_fn="models/$name/$name-METEOR.txt"
 
 # cd "$root/libraries/multeval"

@@ -17,4 +17,9 @@
 * KLAAR: validation experiments: 1u
 * KLAAR: Combined features opnieuw, met linebreaks: < 60min. 
 * pipeline schrijven: 1min
-* 
+
+
+
+* KLAAR: BASELINE: gefit model berekenen
+* KLAAR BASELINE WORST: baseline met de slechtste van de 1000-best
+* KLAAR: PRO met andere sample

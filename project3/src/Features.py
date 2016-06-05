@@ -16,7 +16,7 @@ class Features:
 	which extracts the features from a line in the file.
 	"""
 
-	def __init__(self, features_fn, samples_fn, sentences):
+	def __init__(self, features_fn, samples_fn, sentences, name=""):
 		"""
 		features_fn: a file with features of every candidate. 
 		samples_fn: a file with all samples
@@ -26,6 +26,7 @@ class Features:
 		self.features_fn = features_fn
 		self.samples_fn = samples_fn
 		self.sentences = sentences
+		self.name = name
 		
 	def __iter__(self):
 		self.sample_features = self.iter_samples()
@@ -73,7 +74,6 @@ class Features:
 			sample = map(int, sample.replace("\n","").split(","))
 			if len(sample) == 0:
 				print sample
-
 			# Get features of all candidate translations for this sentence
 			features = []
 			while True:
@@ -138,8 +138,8 @@ class Scores(Features):
 		return [float(line.replace("\n", ""))]
 
 class SparseFeatures(Features):
-	def __init__(self, voc_size, *args):
-		Features.__init__(self, *args)
+	def __init__(self, voc_size, *args, **kwargs):
+		Features.__init__(self, *args, **kwargs)
 		self.voc_size = voc_size
 
 	def get_features(self, line):

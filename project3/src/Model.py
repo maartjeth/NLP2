@@ -71,6 +71,20 @@ class Model:
 	model = None
 	weights = None
 	
+	dims = {
+		'def': 16,
+		'def-combined': 153,
+		'ratios': 5,
+		'wordcount': 1,
+		'tag': 52,
+		'bigram': 1737,
+		'art': 3,
+		'artpl': 14,
+		'es': 1259,
+		'prep': 87,
+		'prepart': 132,
+	}
+
 	def __init__(self, name, kind, sample_size, features, **kwargs):
 		self.time = time()
 		self.time0 = time()
@@ -85,6 +99,12 @@ class Model:
 		self.kind = kind
 		self.sample_size = sample_size
 		self.used_features = features
+		
+		if 'def' in self.used_features and 'def-combined' in self.used_features:
+			self.log('ERROR: FEATURES DEF AND DEF-COMBINED WERE BOTH USED')
+			raise KeyError('BOTH DEF AND DEF COMBINED WERE USED!')
+
+			self.log("Model with features " +" ".join(features))
 
 		# Override filenames
 		if 'samples_fn' in kwargs:
@@ -207,7 +227,7 @@ class Model:
 			if feature not in self.used_features: continue
 
 			features_fn = self.fn('features', feature=feature, kind=kind)
-			dense_feat = DenseFeatures(features_fn, samples_fn, sentences)
+			dense_feat = DenseFeatures(features_fn, samples_fn, sentences, name=feature)
 			features.append(dense_feat)
 
 		# Get sparse features
@@ -216,7 +236,7 @@ class Model:
 
 			voc_size 	= get_voc_size(self.fn('features_voc', feature=feature))
 			features_fn = self.fn('features', feature=feature, kind=kind)
-			sparse_feat = SparseFeatures(voc_size, features_fn, samples_fn, sentences)
+			sparse_feat = SparseFeatures(voc_size, features_fn, samples_fn, sentences, name=feature)
 			features.append(sparse_feat)
 
 		return features
@@ -228,6 +248,27 @@ class Model:
 		feature_iterators = self.get_features()
 		scores = Scores(self.fn('pro_scores'), self.fn('samples'), self.get_sentences())
 		
+		# Check features
+		self.log("  Checking the feature iterators...")
+		found_features = [f.name for f in feature_iterators]
+		for feature in self.used_features:
+
+			# Misspelled feature?
+			if feature not in self.dims:
+				msg = "INVALID FEATURE: '{feat}'".format(feat=feature)
+				self.log("***** "+msg)
+				raise KeyError(msg)
+
+			# Check if all expected features are there
+			if feature in found_features:
+				self.log("    . {feat} was found (dim={dim}).".format(feat=feature, dim=self.dims[feature]))
+			else:
+				self.log("***** {feat} could not be found! (dim={dim})".format(feat=feature, dim=self.dims[feature]))
+				raise KeyError('MISSING FEATURE!')
+		
+		expected_dim = sum([self.dims[feat] for feat in self.used_features])
+		self.log('  Expected dimensionality: {dim}'.format(dim=expected_dim))
+
 		# Build random ordering
 		with self.open('samples') as file:
 			num_lines = 0
@@ -237,15 +278,14 @@ class Model:
 		num_candidates =  num_lines * self.sample_size * 2
 		ordering = range(num_candidates)
 		random.shuffle(ordering)
-		self.log('  Okay.  %s training instances will be generated' % num_candidates)
-		
+		self.log('  Start generating %s training instances' % num_candidates)
+				
 		# COO matrix!
 		rows, cols, vals = [], [], []
 		labels = np.zeros(num_candidates)
 		for i, features in enumerate(izip(scores, *feature_iterators)):	
 			# if i>6000: break
-			if i % 2500 == 0: self.log("  {i:>6}/{num_candidates} candidates done".format(i=i*2, num_candidates=num_candidates))
-
+		
 			# Unpack the features
 			cand1 = flatten([feat[0] for feat in features])
 			cand2 = flatten([feat[1] for feat in features])
@@ -253,7 +293,18 @@ class Model:
 			score2 = cand2[0]
 			cand1 = np.array(cand1[1:])
 			cand2 = np.array(cand2[1:])
-
+			
+			# Check dimensionality
+			if i == 0:
+				if expected_dim == len(cand1):
+					self.log("  Dimensionality is okay ({dim})".format(dim=len(cand1)))
+				else:
+					self.log("** WRONG DIMENSIONALITY: {dim}, expecting {expdim}".format(dim=len(cand1), expdim=expected_dim))
+					raise KeyError('WRONG DIMENSIONALITY!')
+			
+			# Progress
+			if i % 2500 == 0: self.log("  {i:>6}/{num_candidates} candidates done".format(i=i*2, num_candidates=num_candidates))
+			
 			# Find positive and negative instance
 			if score1 > score2:
 				winner, loser = cand1, cand2
