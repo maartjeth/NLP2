@@ -16,7 +16,7 @@ import json
 import random
 
 # Size of the sample
-sample_size = 100
+sample_size = 1
 
 #################################################################
 
