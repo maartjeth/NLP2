@@ -25,12 +25,12 @@ sample_size = 1
 # We don't need samples for test...
 kind = "dev"
 
-sample_size = 1000
+sample_size = 40
 
-top_n = 500;
+top_n = 100;
 
 # Filenames 
-output_fn = "../data-{kind}/samples/{kind}-samples-{size}-separated-{top_n}.txt"
+output_fn = "../data-{kind}/samples/{kind}-samples-{size}-separated-{top_n}-95.txt"
 output_fn = output_fn.format(kind=kind, size=sample_size, top_n=top_n)
 # output_fn = "../data-dev/samples/val-samples-%s-3.txt" 	% sample_size
 
@@ -38,7 +38,7 @@ output_fn = output_fn.format(kind=kind, size=sample_size, top_n=top_n)
 sentences_fn = '../data-dev/dev-sentences.json'
 sentences = json.load(open(sentences_fn, 'r'))
 
-pro_scores_fn = "../data-{kind}/{kind}-meteor.txt".format(kind=kind)
+pro_scores_fn = "../data-{kind}/{kind}-meteor-95.txt".format(kind=kind)
 
 # Construct samples
 scores = Scores(pro_scores_fn, "", sentences)

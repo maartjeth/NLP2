@@ -85,6 +85,7 @@ class Features:
 
 				# Last line of this sentence?
 				if self.sentences[cur_sentence]['last_line'] == line_nr:
+					
 					first_line = self.sentences[cur_sentence]['first_line']
 					sample_feat = [features[s - first_line] for s in sample]
 					for feat1, feat2 in zip(sample_feat[::2], sample_feat[1::2]):
